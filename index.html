@@ -4,44 +4,48 @@
     <title>Donut Tap v0.2</title>
     <script src="https://cdn.jsdelivr.net/npm/brython@3/brython.min.js"></script>
     <style>
-        body { background: #ffffff; color: #000000; font-family: monospace; text-align: center; padding: 2rem; }
+        body { 
+            background: #ffffff; 
+            color: #000000; 
+            font-family: monospace; 
+            text-align: center; 
+            padding: 2rem;
+            margin: 0;
+        }
+        #score {
+            display: flex; 
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 2rem;
+            margin: 1rem;
+            color: #000000; /* Чёрный для белого фона */
+        }
+        #donut-icon {
+            width: 32px;
+            height: 32px;
+            image-rendering: pixelated;
+        }
         #donut {
             background: url('https://nes1er0ff.github.io/donut-tap/images/donut_sprite.png') center/contain no-repeat;
-            width: 1000px; height: 1000px; 
+            width: 300px;  /* Уменьшил для теста */
+            height: 300px;
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             image-rendering: pixelated;
-            margin: 2rem auto;
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
-            tap-highlight-color: transparent;
+            border: 2px solid red; /* Чтобы видеть границы */
         }
-        #score { font-size: 2rem; margin: 1rem; color: #ffff00; }
-
-        #score {
-    display: flex; 
-    align-items: center;
-    gap: 10px;
-    font-size: 2rem;
-    margin: 1rem;
-    color: #ffff00;
-}
-
-#donut-icon {
-    width: 32px;
-    height: 32px;
-    image-rendering: pixelated;
-}
-  
     </style>
 </head>
-<body onload="brython()">
+<body>
     <h1>// DONUT TAP v0.2</h1>
     <div id="score">
         <img id="donut-icon" src="images/mini_donut.png" alt="🍩">
-        <span id="score-text">SCORE: 0</span>  <!-- Добавил id -->
+        <span id="score-text">SCORE: 0</span>
     </div>
     
     <div id="donut"></div>
@@ -49,7 +53,7 @@
     <script type="text/python">
         from browser import document
         score = 0
-        score_display = document["score-text"]  <!-- Меняем сюда! -->
+        score_display = document["score-text"]
         donut = document["donut"]
 
         def tap(event):
@@ -59,6 +63,15 @@
             print(f"Tapped! Score is now: {score}")
 
         donut.bind("click", tap)
+        
+        print("Brython загружен! Бот готов к тапам!")  # Проверка в консоли
+    </script>
+    
+    <!-- Инициализация Brython -->
+    <script>
+        window.onload = function() {
+            brython();
+        };
     </script>
 </body>
 </html>
