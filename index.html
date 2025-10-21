@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Donut Tap v0.1</title>
+    <script src="https://cdn.jsdelivr.net/npm/brython@3/brython.min.js"></script>
+    <style>
+        body {
+            background: #0a0a0a;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            margin: 0;
+            padding: 2rem;
+            user-select: none;
+            overflow: hidden;
+        }
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        #donut {
+            width: 150px;
+            height: 150px;
+            cursor: pointer;
+            transition: transform 0.1s;
+            /* ВСТАВЬ СВОЙ СПРАЙТ: */
+            /* background: url('images/your_donut.png') center/contain no-repeat; */
+            background: #ffaa00; /* Временный цвет */
+            border-radius: 50%; /* Временный пончик */
+            margin: 2rem auto;
+        }
+        #score {
+            font-size: 2rem;
+            margin: 1rem;
+            color: #ffff00;
+        }
+        #message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            color: #ff00ff;
+        }
+    </style>
+</head>
+<body>
+    <h1>// DONUT TAP v0.1</h1>
+    <div id="score">SCORE: 0</div>
+    
+    <div id="game-container">
+        <div id="donut"></div>
+        <div id="message">+1!</div>
+    </div>
+
+    <script type="text/python">
+        from browser import document, window
+        import random
+
+        score = 0
+        donut = document["donut"]
+        score_display = document["score"]
+        message = document["message"]
+
+        def tap(event):
+            global score
+            score += 1
+            score_display.text = f"SCORE: {score}"
+            
+            # Анимация тапа
+            donut.style.transform = "scale(0.9)"
+            window.setTimeout(lambda: donut.style.transform = "scale(1)", 100)
+            
+            # Всплывающее сообщение
+            message.style.opacity = "1"
+            message.style.left = f"{event.x}px"
+            message.style.top = f"{event.y}px"
+            window.setTimeout(lambda: message.style.opacity = "0", 300)
+            
+            # ЗДЕСЬ БУДЕТ ЗВУК
+            # document["tap-sound"].play()
+
+        def move_donut():
+            # ЗДЕСЬ БУДЕТ ДВИЖЕНИЕ
+            # Пока просто случайное смещение для примера
+            if random.random() < 0.02:  # 2% шанс каждые 60 кадров
+                x = random.randint(-50, 50)
+                y = random.randint(-50, 50)
+                donut.style.transform = f"translate({x}px, {y}px)"
+
+        donut.bind("click", tap)
+        
+        # Главный игровой цикл (60 FPS)
+        def game_loop():
+            move_donut()
+            window.requestAnimationFrame(game_loop)
+        
+        game_loop()
+    </script>
+
+    <!-- ЗДЕСЬ БУДЕТ ЗВУК -->
+    <!-- <audio id="tap-sound" src="sounds/tap.wav" preload="auto"></audio> -->
+</body>
+                           </html>
