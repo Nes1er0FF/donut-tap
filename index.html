@@ -37,11 +37,12 @@
   
     </style>
 </head>
-<body onload="brython()"
+<body onload="brython()">
     <h1>// DONUT TAP v0.2</h1>
     <div id="score">
         <img id="donut-icon" src="images/mini_donut.png" alt="🍩">
         <span>SCORE: 0</span>
+    </div>
     <div id="donut"></div>
     <script type="text/python">
         from browser import document
@@ -49,14 +50,7 @@
         score_display = document["score"]
         donut = document["donut"]
 
-        def tap(event):
-            donut.style.position = "fixed"
-            donut.style.top = "50%"
-            donut.style.left = "50%" 
-            donut.style.transform = "translate(-50%, -50%)"
-            donut.style.width = "1000px"  # Твой размер
-            donut.style.height = "1000px"
-         
+        def tap(event)
             global score
             score += 1
             score_display.text = f"SCORE: {score}"
