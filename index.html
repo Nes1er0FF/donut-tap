@@ -7,15 +7,14 @@
         body { background: #0a0a0a; color: #00ff41; font-family: monospace; text-align: center; padding: 2rem; }
         #donut {
             width: 150px; height: 150px; 
-            background: #ffaa00; /* Временный цвет */
-            border-radius: 50%; /* Временный пончик */
+            background: url('images/donut_sprite.png') center/contai no-repeat;
             margin: 2rem auto;
             cursor: pointer;
         }
         #score { font-size: 2rem; margin: 1rem; color: #ffff00; }
     </style>
 </head>
-<body onload="brython()">
+<body onload="brython()"
     <h1>// DONUT TAP v0.1</h1>
     <div id="score">SCORE: 0</div>
     <div id="donut"></div>
