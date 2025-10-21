@@ -41,23 +41,24 @@
     <h1>// DONUT TAP v0.2</h1>
     <div id="score">
         <img id="donut-icon" src="images/mini_donut.png" alt="🍩">
-        <span>SCORE: 0</span>
+        <span id="score-text">SCORE: 0</span>  <!-- Добавил id -->
     </div>
     
     <div id="donut"></div>
-    
+
     <script type="text/python">
         from browser import document
         score = 0
-        score_display = document["score"]
+        score_display = document["score-text"]  <!-- Меняем сюда! -->
         donut = document["donut"]
 
-        def tap(event)
+        def tap(event):
             global score
             score += 1
             score_display.text = f"SCORE: {score}"
-            print(f"Tapped! Score is now: {score}") # Для отладки в консоли
+            print(f"Tapped! Score is now: {score}")
 
         donut.bind("click", tap)
     </script>
 </body>
+</html>
