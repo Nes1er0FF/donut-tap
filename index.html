@@ -19,9 +19,9 @@
             tap-highlight-color: transparent;
         }
         #score { font-size: 2rem; margin: 1rem; color: #ffff00; }
-        
+
         #score {
-    display: flex;
+    display: flex; 
     align-items: center;
     gap: 10px;
     font-size: 2rem;
@@ -32,8 +32,9 @@
 #donut-icon {
     width: 32px;
     height: 32px;
-    image-rendering: pixelated; 
+    image-rendering: pixelated;
 }
+  
     </style>
 </head>
 <body onload="brython()"
@@ -49,6 +50,13 @@
         donut = document["donut"]
 
         def tap(event):
+            donut.style.position = "fixed"
+            donut.style.top = "50%"
+            donut.style.left = "50%" 
+            donut.style.transform = "translate(-50%, -50%)"
+            donut.style.width = "1000px"  # Твой размер
+            donut.style.height = "1000px"
+         
             global score
             score += 1
             score_display.text = f"SCORE: {score}"
