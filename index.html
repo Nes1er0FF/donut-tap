@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Donut Tap v0.1</title>
+    <title>Donut Tap v0.2</title>
     <script src="https://cdn.jsdelivr.net/npm/brython@3/brython.min.js"></script>
     <style>
         body { background: #ffffff; color: #000000; font-family: monospace; text-align: center; padding: 2rem; }
@@ -19,11 +19,28 @@
             tap-highlight-color: transparent;
         }
         #score { font-size: 2rem; margin: 1rem; color: #ffff00; }
+        
+        #score {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 2rem;
+    margin: 1rem;
+    color: #ffff00;
+}
+
+#donut-icon {
+    width: 32px;
+    height: 32px;
+    image-rendering: pixelated; 
+}
     </style>
 </head>
 <body onload="brython()"
-    <h1>// DONUT TAP v0.1</h1>
-    <div id="score">SCORE: 0</div>
+    <h1>// DONUT TAP v0.2</h1>
+    <div id="score">
+        <img id="donut-icon" src="images/mini_donut.png" alt="🍩">
+        <span>SCORE: 0</span>
     <div id="donut"></div>
     <script type="text/python">
         from browser import document
