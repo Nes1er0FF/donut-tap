@@ -37,22 +37,21 @@
             image-rendering: pixelated;
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
-            border: 2px solid red; /* Временно чтобы видеть границы */
+            touch-action: manipulation; /* Отключает двойной тап для зума */
+            border: 2px solid red;
         }
-       #donut {
-    touch-action: manipulation; /* Отключает двойной тап для зума */
-    /* остальные твои стили */
-            } 
+        
+        /* АНИМАЦИЯ ПРЫЖКА - ДОБАВЛЯЕМ СЮДА */
+        @keyframes jump {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -60%) scale(1.05); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        .jump-animation {
+            animation: jump 0.3s ease-in-out;
+        }
     </style>
-    @keyframes jump {
-    0% { transform: translate(-50%, -50%) scale(1); }
-    50% { transform: translate(-50%, -60%) scale(1.05); } /* Поднимаем и увеличиваем */
-    100% { transform: translate(-50%, -50%) scale(1); }
-}
-
-.jump-animation {
-    animation: jump 0.3s ease-in-out;
-}
 </head>
 <body>
     <h1>// DONUT TAP v0.3</h1>
@@ -64,15 +63,11 @@
     <div id="donut"></div>
 
     <script>
-        // Простой вариант на JavaScript
         console.log("Donut Tap запущен!");
 
         let score = 0;
         const scoreDisplay = document.getElementById("score-text");
         const donut = document.getElementById("donut");
-
-        console.log("Найден пончик:", donut);
-        console.log("Найден счёт:", scoreDisplay);
 
         // Загрузка сохранения
         function loadSave() {
@@ -87,26 +82,23 @@
         // Сохранение прогресса
         function saveProgress() {
             localStorage.setItem("donutTap_score", score.toString());
-            console.log("Прогресс сохранён!");
         }
 
-        // Функция тапа
+        // Функция тапа - ОДНА ЕДИНСТВЕННАЯ!
         function tap(event) {
+            // Увеличиваем счёт
             score++;
             scoreDisplay.textContent = `SCORE: ${score}`;
             saveProgress();
             console.log(`Тап! Счёт: ${score}`);
-         }
-        // Анимация прыжка
-            function tap(event) {
-    // ... твой код увеличения счёта ...
-    
-    // Анимация прыжка
-    donut.classList.add("jump-animation");
-    setTimeout(() => {
-        donut.classList.remove("jump-animation");
-    }, 300);
-            }
+            
+            // Анимация прыжка
+            donut.classList.add("jump-animation");
+            setTimeout(() => {
+                donut.classList.remove("jump-animation");
+            }, 300);
+        }
+
         // Запуск
         if (donut) {
             donut.addEventListener("click", tap);
