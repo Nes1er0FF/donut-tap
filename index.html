@@ -51,9 +51,14 @@
     <div id="donut"></div>
 
     <script type="text/python">
-from browser import localStorage
+from browser import document, localStorage
 
-/* ЗАГРУЗКА СОХРАНЁННОГО ПРОГРЕССА ПРИ ЗАПУСКЕ ↓*/
+# ← ИНИЦИАЛИЗАЦИЯ ПЕРЕМЕННЫХ ↓
+score = 0
+score_display = document["score-text"]
+donut = document["donut"]
+
+# ← ЗАГРУЗКА СОХРАНЁННОГО ПРОГРЕССА ПРИ ЗАПУСКЕ ↓
 def load_save():
     global score
     saved_score = localStorage.get("donutTap_score")
@@ -62,20 +67,22 @@ def load_save():
         score_display.text = f"SCORE: {score}"
         print(f"Загружено сохранение: {score} очков")
 
- /*СОХРАНЕНИЕ ПРОГРЕССА ПРИ КАЖДОМ ТАПЕ ↓ */
+# ← СОХРАНЕНИЕ ПРОГРЕССА ПРИ КАЖДОМ ТАПЕ ↓  
 def save_progress():
     localStorage.set("donutTap_score", str(score))
 
-/* ← ОБНОВЛЯЕМ ФУНКЦИЮ TAP() ↓*/
+# ← ОБНОВЛЯЕМ ФУНКЦИЮ TAP() ↓
 def tap(event):
     global score
     score += 1
     score_display.text = f"SCORE: {score}"
-    save_progress()  /* СОХРАНЯЕМСЯ ПОСЛЕ КАЖДОГО ТАПА!*/
+    save_progress()  # ← СОХРАНЯЕМСЯ ПОСЛЕ КАЖДОГО ТАПА!
     print(f"Tapped! Score: {score} (сохранено)")
 
-/* ЗАГРУЗКА ПРИ СТАРТЕ ↓  */
+# ← ПРИВЯЗКА СОБЫТИЯ И ЗАГРУЗКА СОХРАНЕНИЯ ↓
+donut.bind("click", tap)
 load_save()
+    </script>
     </script>
     
     <!-- Инициализация Brython -->
