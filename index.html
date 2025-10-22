@@ -39,10 +39,12 @@
             -webkit-tap-highlight-color: transparent;
             border: 2px solid red; /* Временно чтобы видеть границы */
         }
-        #donut {
+       #donut {
     touch-action: manipulation; /* Отключает двойной тап для зума */
     /* остальные твои стили */
-            @keyframes jump {
+            } 
+    </style>
+    @keyframes jump {
     0% { transform: translate(-50%, -50%) scale(1); }
     50% { transform: translate(-50%, -60%) scale(1.05); } /* Поднимаем и увеличиваем */
     100% { transform: translate(-50%, -50%) scale(1); }
@@ -51,8 +53,6 @@
 .jump-animation {
     animation: jump 0.3s ease-in-out;
 }
-        }
-    </style>
 </head>
 <body>
     <h1>// DONUT TAP v0.3</h1>
