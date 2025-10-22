@@ -28,8 +28,8 @@
         }
         #donut {
             background: url('https://nes1er0ff.github.io/donut-tap/images/donut_sprite.png') center/contain no-repeat;
-            width: 1000px;  /* Уменьшил для теста */
-            height: 1000px;
+            width: 1000px;  /* размер центрального пончика*/
+            height: 1000px; /*размер центрального пончика*/
             position: fixed;
             top: 50%;
             left: 50%;
@@ -51,20 +51,31 @@
     <div id="donut"></div>
 
     <script type="text/python">
-        from browser import document
-        score = 0
-        score_display = document["score-text"]
-        donut = document["donut"]
+from browser import localStorage
 
-        def tap(event):
-            global score
-            score += 1
-            score_display.text = f"SCORE: {score}"
-            print(f"Tapped! Score is now: {score}")
+/* ЗАГРУЗКА СОХРАНЁННОГО ПРОГРЕССА ПРИ ЗАПУСКЕ ↓*/
+def load_save():
+    global score
+    saved_score = localStorage.get("donutTap_score")
+    if saved_score:
+        score = int(saved_score)
+        score_display.text = f"SCORE: {score}"
+        print(f"Загружено сохранение: {score} очков")
 
-        donut.bind("click", tap)
-        
-        print("Brython загружен! Бот готов к тапам!")  # Проверка в консоли
+ /*СОХРАНЕНИЕ ПРОГРЕССА ПРИ КАЖДОМ ТАПЕ ↓ */
+def save_progress():
+    localStorage.set("donutTap_score", str(score))
+
+/* ← ОБНОВЛЯЕМ ФУНКЦИЮ TAP() ↓*/
+def tap(event):
+    global score
+    score += 1
+    score_display.text = f"SCORE: {score}"
+    save_progress()  /* СОХРАНЯЕМСЯ ПОСЛЕ КАЖДОГО ТАПА!*/
+    print(f"Tapped! Score: {score} (сохранено)")
+
+/* ЗАГРУЗКА ПРИ СТАРТЕ ↓  */
+load_save()
     </script>
     
     <!-- Инициализация Brython -->
