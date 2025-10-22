@@ -2,7 +2,6 @@
 <html>
 <head>
     <title>Donut Tap v0.3</title>
-    <script src="https://cdn.jsdelivr.net/npm/brython@3/brython.min.js"></script>
     <style>
         body { 
             background: #418CD8FF;
@@ -37,6 +36,7 @@
             image-rendering: pixelated;
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
+            border: 2px solid red; /* Временно чтобы видеть границы */
         }
     </style>
 </head>
@@ -49,52 +49,49 @@
     
     <div id="donut"></div>
 
-    <script type="text/python">
-<script>
-// Простой вариант на JavaScript - точно сработает
-console.log("Donut Tap запущен!");
+    <script>
+        // Простой вариант на JavaScript
+        console.log("Donut Tap запущен!");
 
-let score = 0;
-const scoreDisplay = document.getElementById("score-text");
-const donut = document.getElementById("donut");
+        let score = 0;
+        const scoreDisplay = document.getElementById("score-text");
+        const donut = document.getElementById("donut");
 
-// Загрузка сохранения
-function loadSave() {
-    const savedScore = localStorage.getItem("donutTap_score");
-    if (savedScore) {
-        score = parseInt(savedScore);
-        scoreDisplay.textContent = `SCORE: ${score}`;
-        console.log(`Загружено сохранение: ${score} очков`);
-    }
-}
+        console.log("Найден пончик:", donut);
+        console.log("Найден счёт:", scoreDisplay);
 
-// Сохранение прогресса
-function saveProgress() {
-    localStorage.setItem("donutTap_score", score.toString());
-    console.log("Прогресс сохранён!");
-}
+        // Загрузка сохранения
+        function loadSave() {
+            const savedScore = localStorage.getItem("donutTap_score");
+            if (savedScore) {
+                score = parseInt(savedScore);
+                scoreDisplay.textContent = `SCORE: ${score}`;
+                console.log(`Загружено сохранение: ${score} очков`);
+            }
+        }
 
-// Функция тапа
-function tap(event) {
-    score++;
-    scoreDisplay.textContent = `SCORE: ${score}`;
-    saveProgress();
-    console.log(`Тап! Счёт: ${score}`);
-    
-    // Добавим анимацию тряски для наглядности
-    donut.style.transform = "translate(-50%, -50%) scale(1.1)";
-    setTimeout(() => {
-        donut.style.transform = "translate(-50%, -50%) scale(1)";
-    }, 100);
-}
+        // Сохранение прогресса
+        function saveProgress() {
+            localStorage.setItem("donutTap_score", score.toString());
+            console.log("Прогресс сохранён!");
+        }
 
-// Запуск
-donut.addEventListener("click", tap);
-loadSave();
-console.log("Бот готов к тапам!");
-    </script>
+        // Функция тапа
+        function tap(event) {
+            score++;
+            scoreDisplay.textContent = `SCORE: ${score}`;
+            saveProgress();
+            console.log(`Тап! Счёт: ${score}`);
+        }
 
-        };
+        // Запуск
+        if (donut) {
+            donut.addEventListener("click", tap);
+            loadSave();
+            console.log("Бот готов к тапам!");
+        } else {
+            console.error("ПОНЧИК НЕ НАЙДЕН!");
+        }
     </script>
 </body>
 </html>
