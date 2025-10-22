@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Donut Tap v0.3</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
         body { 
             background: #418CD8FF;
@@ -37,6 +38,19 @@
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
             border: 2px solid red; /* Временно чтобы видеть границы */
+        }
+        #donut {
+    touch-action: manipulation; /* Отключает двойной тап для зума */
+    /* остальные твои стили */
+            @keyframes jump {
+    0% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -60%) scale(1.05); } /* Поднимаем и увеличиваем */
+    100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+.jump-animation {
+    animation: jump 0.3s ease-in-out;
+}
         }
     </style>
 </head>
@@ -82,8 +96,17 @@
             scoreDisplay.textContent = `SCORE: ${score}`;
             saveProgress();
             console.log(`Тап! Счёт: ${score}`);
-        }
-
+         }
+        // Анимация прыжка
+            function tap(event) {
+    // ... твой код увеличения счёта ...
+    
+    // Анимация прыжка
+    donut.classList.add("jump-animation");
+    setTimeout(() => {
+        donut.classList.remove("jump-animation");
+    }, 300);
+            }
         // Запуск
         if (donut) {
             donut.addEventListener("click", tap);
