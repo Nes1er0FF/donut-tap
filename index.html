@@ -50,42 +50,48 @@
     <div id="donut"></div>
 
     <script type="text/python">
-from browser import document, localStorage
+<script>
+// Простой вариант на JavaScript - точно сработает
+console.log("Donut Tap запущен!");
 
-print("=== Brython запущен! ===")  # Проверка загрузки
+let score = 0;
+const scoreDisplay = document.getElementById("score-text");
+const donut = document.getElementById("donut");
 
-# Инициализация переменных
-score = 0
-score_display = document["score-text"]
-donut = document["donut"]
-print("Элементы найдены:", score_display, donut)
+// Загрузка сохранения
+function loadSave() {
+    const savedScore = localStorage.getItem("donutTap_score");
+    if (savedScore) {
+        score = parseInt(savedScore);
+        scoreDisplay.textContent = `SCORE: ${score}`;
+        console.log(`Загружено сохранение: ${score} очков`);
+    }
+}
 
-# Загрузка сохранения
-def load_save():
-    global score
-    saved_score = localStorage.get("donutTap_score")
-    if saved_score:
-        score = int(saved_score)
-        score_display.text = f"SCORE: {score}"
-        print(f"Загружено сохранение: {score} очков")
+// Сохранение прогресса
+function saveProgress() {
+    localStorage.setItem("donutTap_score", score.toString());
+    console.log("Прогресс сохранён!");
+}
 
-# Сохранение прогресса
-def save_progress():
-    localStorage.set("donutTap_score", str(score))
-    print("Прогресс сохранён!")
+// Функция тапа
+function tap(event) {
+    score++;
+    scoreDisplay.textContent = `SCORE: ${score}`;
+    saveProgress();
+    console.log(`Тап! Счёт: ${score}`);
+    
+    // Добавим анимацию тряски для наглядности
+    donut.style.transform = "translate(-50%, -50%) scale(1.1)";
+    setTimeout(() => {
+        donut.style.transform = "translate(-50%, -50%) scale(1)";
+    }, 100);
+}
 
-# Функция тапа
-def tap(event):
-    global score
-    score += 1
-    score_display.text = f"SCORE: {score}"
-    save_progress()
-    print(f"Тап! Счёт: {score}")
-
-# Запуск
-load_save()
-donut.bind("click", tap)
-print("=== Бот готов к тапам! ===")
+// Запуск
+donut.addEventListener("click", tap);
+loadSave();
+console.log("Бот готов к тапам!");
     </script>
 
     <script>
