@@ -3,9 +3,7 @@
 <head>
     <title>Donut Tap v0.3</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
     <style>
-        /* Body styles */
         body { 
             background: #418CD8FF;
             color: #000000;
@@ -14,8 +12,6 @@
             padding: 2rem;
             margin: 0;
         }
-        
-        /* Score display */
         #score {
             display: flex;
             align-items: center;
@@ -24,15 +20,11 @@
             font-size: 2rem;
             margin: 1rem;
         }
-        
-        /* Donut icon in score */
         #donut-icon {
             width: 64px;
             height: 64px;
             image-rendering: pixelated;
         }
-        
-        /* Main donut */
         #donut {
             background: url('https://nes1er0ff.github.io/donut-tap/images/donut_sprite.png') center/contain no-repeat;
             width: 1000px;
@@ -47,64 +39,49 @@
             touch-action: manipulation;
             animation: none;
         }
-        
-        /* Jump animation */
         @keyframes jump {
             0% { transform: translate(-50%, -50%) scale(1); }
             50% { transform: translate(-50%, -60%) scale(1.05); }
             100% { transform: translate(-50%, -50%) scale(1); }
         }
-        
         .jump-animation {
             animation: jump 0.3s ease-in-out;
         }
     </style>
 </head>
-
 <body>
     <h1>// DONUT TAP v0.3</h1>
-    
     <div id="score">
         <img id="donut-icon" src="images/mini_donut.png" alt="🍩">
         <span id="score-text">SCORE: 0</span>
     </div>
-    
     <div id="donut"></div>
 
     <script>
-        // Game settings
         let score = 0;
         const scoreDisplay = document.getElementById("score-text");
         const donut = document.getElementById("donut");
-        
+
         console.log("Donut Tap started!");
 
-        // Load save
         function loadSave() {
             const savedScore = localStorage.getItem("donutTap_score");
             if (savedScore) {
                 score = parseInt(savedScore);
                 scoreDisplay.textContent = `SCORE: ${score}`;
-                console.log(`Loaded save: ${score} points`);
+                console.log(`Loaded: ${score} points`);
             }
         }
 
-        // Save progress
         function saveProgress() {
             localStorage.setItem("donutTap_score", score.toString());
-            console.log("Progress saved!");
         }
 
-        // Tap function
         function tap(event) {
-            // 1. Increase score
             score++;
             scoreDisplay.textContent = `SCORE: ${score}`;
-            
-            // 2. Save progress
             saveProgress();
             
-            // 3. Jump animation
             donut.classList.add("jump-animation");
             setTimeout(() => {
                 donut.classList.remove("jump-animation");
@@ -113,11 +90,10 @@
             console.log(`Tap! Score: ${score}`);
         }
 
-        // Start game
         if (donut) {
             donut.addEventListener("click", tap);
             loadSave();
-            console.log("Ready for tapping!");
+            console.log("Ready!");
         } else {
             console.error("DONUT NOT FOUND!");
         }
