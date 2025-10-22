@@ -1,112 +1,129 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Donut Tap v0.3</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <style>
+<html> <!-- Начало HTML документа -->
+<head> <!-- Раздел с настройками -->
+    <title>Donut Tap v0.3</title> <!-- Заголовок вкладки -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> <!-- Запрет зума на телефоне -->
+    
+    <style> <!-- Начало CSS (стили) -->
+        /* Стили для всего тела сайта */
         body { 
-            background: #418CD8FF;
-            color: #000000;
-            font-family: monospace; 
-            text-align: center; 
-            padding: 2rem;
-            margin: 0;
+            background: #418CD8FF; /* Синий фон */
+            color: #000000; /* Чёрный текст */
+            font-family: monospace; /* Шрифт как в терминале */
+            text-align: center; /* Выравнивание по центру */
+            padding: 2rem; /* Отступы */
+            margin: 0; /* Убираем стандартные отступы */
         }
+        
+        /* Стили для блока счёта */
         #score {
-            display: flex; 
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-size: 2rem;
-            margin: 1rem;
-            color: #000000;
+            display: flex; /* Включаем flex-раскладку */
+            align-items: center; /* Выравниваем по вертикали */
+            justify-content: center; /* Выравниваем по горизонтали */
+            gap: 10px; /* Расстояние между иконкой и текстом */
+            font-size: 2rem; /* Размер текста */
+            margin: 1rem; /* Внешние отступы */
         }
+        
+        /* Стили для иконки пончика в счёте */
         #donut-icon {
-            width: 64px;
-            height: 64px;
-            image-rendering: pixelated;
+            width: 64px; /* Ширина */
+            height: 64px; /* Высота */
+            image-rendering: pixelated; /* Чёткие пиксели */
         }
+        
+        /* Стили для главного пончика */
         #donut {
-            background: url('https://nes1er0ff.github.io/donut-tap/images/donut_sprite.png') center/contain no-repeat;
-            width: 1000px;
-            height: 1000px;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            image-rendering: pixelated;
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation; /* Отключает двойной тап для зума */
-            border: 2px solid red;
+            background: url('https://nes1er0ff.github.io/donut-tap/images/donut_sprite.png') center/contain no-repeat; /* Картинка пончика */
+            width: 1000px; /* Ширина */
+            height: 1000px; /* Высота */
+            position: fixed; /* Фиксированное позиционирование */
+            top: 50%; /* На 50% от верха */
+            left: 50%; /* На 50% от левого края */
+            transform: translate(-50%, -50%); /* Сдвигаем обратно на половину размера для точного центрирования */
+            image-rendering: pixelated; /* Чёткие пиксели */
+            cursor: pointer; /* Курсор-рука при наведении */
+            -webkit-tap-highlight-color: transparent; /* Убираем синее выделение при тапе */
+            touch-action: manipulation; /* Запрещаем масштабирование */
+            animation: none; /* Отключаем анимации по умолчанию */
         }
         
-        /* АНИМАЦИЯ ПРЫЖКА - ДОБАВЛЯЕМ СЮДА */
+        /* ОПИСАНИЕ анимации прыжка */
         @keyframes jump {
-            0% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -60%) scale(1.05); }
-            100% { transform: translate(-50%, -50%) scale(1); }
+            0% { transform: translate(-50%, -50%) scale(1); } /* Начало: обычное положение */
+            50% { transform: translate(-50%, -60%) scale(1.05); } /* Середина: поднялся и увеличился */
+            100% { transform: translate(-50%, -50%) scale(1); } /* Конец: вернулся обратно */
         }
         
+        /* КЛАСС, который включает анимацию прыжка */
         .jump-animation {
-            animation: jump 0.3s ease-in-out;
+            animation: jump 0.3s ease-in-out; /* Применяем анимацию jump на 0.3 секунды */
         }
-    </style>
-</head>
-<body>
-    <h1>// DONUT TAP v0.3</h1>
+    </style> <!-- Конец CSS -->
+</head> <!-- Конец раздела настроек -->
+
+<body> <!-- Видимая часть сайта -->
+    <h1>// DONUT TAP v0.3</h1> <!-- Заголовок игры -->
+    
+    <!-- Блок счёта -->
     <div id="score">
-        <img id="donut-icon" src="images/mini_donut.png" alt="🍩">
-        <span id="score-text">SCORE: 0</span>
+        <img id="donut-icon" src="images/mini_donut.png" alt="🍩"> <!-- Иконка пончика -->
+        <span id="score-text">SCORE: 0</span> <!-- Текст счёта -->
     </div>
     
+    <!-- Главный пончик (кликабельный) -->
     <div id="donut"></div>
 
-    <script>
-        console.log("Donut Tap запущен!");
+    <script> <!-- Начало JavaScript (логика игры) -->
+        // === НАСТРОЙКИ ИГРЫ ===
+        let score = 0; // Переменная для хранения очков
+        const scoreDisplay = document.getElementById("score-text"); // Находим элемент счёта на странице
+        const donut = document.getElementById("donut"); // Находим элемент пончика на странице
+        
+        console.log("Donut Tap запущен!"); // Вывод в консоль для отладки
 
-        let score = 0;
-        const scoreDisplay = document.getElementById("score-text");
-        const donut = document.getElementById("donut");
-
-        // Загрузка сохранения
+        // === ФУНКЦИЯ ЗАГРУЗКИ СОХРАНЕНИЯ ===
         function loadSave() {
-            const savedScore = localStorage.getItem("donutTap_score");
-            if (savedScore) {
-                score = parseInt(savedScore);
-                scoreDisplay.textContent = `SCORE: ${score}`;
-                console.log(`Загружено сохранение: ${score} очков`);
+            const savedScore = localStorage.getItem("donutTap_score"); // Пытаемся загрузить сохранение
+            if (savedScore) { // Если сохранение найдено
+                score = parseInt(savedScore); // Преобразуем текст в число
+                scoreDisplay.textContent = `SCORE: ${score}`; // Обновляем счёт на странице
+                console.log(`Загружено сохранение: ${score} очков`); // Логируем
             }
         }
 
-        // Сохранение прогресса
+        // === ФУНКЦИЯ СОХРАНЕНИЯ ПРОГРЕССА ===
         function saveProgress() {
-            localStorage.setItem("donutTap_score", score.toString());
+            localStorage.setItem("donutTap_score", score.toString()); // Сохраняем счёт как текст
+            console.log("Прогресс сохранён!"); // Логируем
         }
 
-        // Функция тапа - ОДНА ЕДИНСТВЕННАЯ!
+        // === ГЛАВНАЯ ФУНКЦИЯ ТАПА ===
         function tap(event) {
-            // Увеличиваем счёт
+            // 1. Увеличиваем счёт
             score++;
-            scoreDisplay.textContent = `SCORE: ${score}`;
-            saveProgress();
-            console.log(`Тап! Счёт: ${score}`);
+            scoreDisplay.textContent = `SCORE: ${score}`; // Обновляем отображение
             
-            // Анимация прыжка
-            donut.classList.add("jump-animation");
+            // 2. Сохраняем прогресс
+            saveProgress();
+            
+            // 3. Запускаем анимацию прыжка
+            donut.classList.add("jump-animation"); // Добавляем класс с анимацией
             setTimeout(() => {
-                donut.classList.remove("jump-animation");
+                donut.classList.remove("jump-animation"); // Через 300ms убираем класс
             }, 300);
+            
+            console.log(`Тап! Счёт: ${score}`); // Логируем
         }
 
-        // Запуск
-        if (donut) {
-            donut.addEventListener("click", tap);
-            loadSave();
-            console.log("Бот готов к тапам!");
+        // === ЗАПУСК ИГРЫ ===
+        if (donut) { // Если пончик найден на странице
+            donut.addEventListener("click", tap); // Вешаем обработчик клика на пончик
+            loadSave(); // Загружаем сохранение
+            console.log("Бот готов к тапам!"); // Логируем
         } else {
-            console.error("ПОНЧИК НЕ НАЙДЕН!");
+            console.error("ПОНЧИК НЕ НАЙДЕН!"); // Если ошибка - кричим в консоль
         }
-    </script>
-</body>
-</html>
+    </script> <!-- Конец JavaScript -->
+</body> <!-- Конец видимой части -->
+</html> <!-- Конец HTML документа -->
