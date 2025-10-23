@@ -58,6 +58,7 @@
 }
 
 .particle {
+    opacity: 1;
     position: absolute;
     width: 32px;
     height: 32px;
@@ -84,7 +85,7 @@
             const savedScore = localStorage.getItem("donutTap_score");
             if (savedScore) {
                 score = parseInt(savedScore);
-                scoreDisplay.textContent = `SCORE: ${score}`;
+                scoreDisplay.textContent = `ПОНЧИКОВ: ${formatNumber(score)}`;
             }
         }
 
@@ -136,8 +137,7 @@
         }
         function tap(event) {
             score++;
-            scoreDisplay.textContent = `ПОНЧИКОВ: ${score}`;
-            saveProgress();
+            scoreDisplay.textContent = `ПОНЧИКОВ: ${formatNumber(score)}`;
             
             donut.classList.remove("jump-animation");
             void donut.offsetWidth;
