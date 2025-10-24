@@ -78,6 +78,23 @@
     <div id="particles-container"></div>
 
     <script>
+       const tapSounds = [
+    'sounds/tap1.mp3',
+    'sounds/tap2.mp3',
+    'sounds/tap3.mp3',
+    'sounds/tap4.mp3', 
+    'sounds/tap5.mp3',
+    'sounds/tap6.mp3',
+    'sounds/tap7.mp3'
+];
+
+// Функция случайного воспроизведения
+        function playTapSound() {
+        const randomSound = tapSounds[Math.floor(Math.random() * tapSounds.length)];
+        const audio = new Audio(randomSound);
+        audio.volume = 0.3; // Громкость 30%
+        audio.play();
+      } 
         let score = 0;
         const scoreDisplay = document.getElementById("score-text");
         const donut = document.getElementById("donut");
@@ -145,6 +162,7 @@
             void donut.offsetWidth;
             donut.classList.add("jump-animation");
             createParticle(event.clientX, event.clientY);
+            playTapSound();
         }
 
         donut.addEventListener("click", tap);
