@@ -136,6 +136,22 @@
             transition: transform 0.5s ease-out, opacity 0.5s ease-out;
             opacity: 1;
         }
+        /* Убираем синюю подсветку при тапе на всех элементах */
+        #settings-btn, 
+        #close-btn,
+        .setting-row,
+        .setting-icon {
+            -webkit-tap-highlight-color: transparent;
+            tap-highlight-color: transparent;
+            outline: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+/* Для кнопок настроек добавляем активный стиль */
+         .setting-row:active {
+            transform: scale(0.95); /* Лёгкое нажатие */
+        }
     </style>
 </head>
 <body>
