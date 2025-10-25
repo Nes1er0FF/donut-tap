@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Donut Tap v0.4</title>
+    <title>Donut Tap v0.5</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
         body { 
@@ -27,7 +27,7 @@
             image-rendering: pixelated;
         }
         #donut {
-            background: url('https://nes1er0ff.github.io/donut-tap/images/donut_sprite.png') center/contain no-repeat;
+            background: url('./images/donut_sprite.png') center/contain no-repeat;
             width: 300px;
             height: 300px;
             position: fixed;
@@ -52,7 +52,28 @@
             image-rendering: pixelated;
         }
         
-        #settings-modal {
+        /* НОВЫЕ КНОПКИ ВНИЗУ */
+        .bottom-btn {
+            position: fixed;
+            bottom: 20px;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            z-index: 1000;
+            image-rendering: pixelated;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        #upgrades-btn { 
+            left: 20px; 
+        }
+        
+        #info-btn { 
+            right: 20px; 
+        }
+        
+        /* Модальные окна (общие стили) */
+        .modal {
             display: none;
             position: fixed;
             top: 0;
@@ -63,19 +84,31 @@
             z-index: 2000;
         }
         
-        #settings-window {
+        .modal-window {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 300px;
-            height: 200px;
             background: url('images/menu_background.png') center/contain no-repeat;
             image-rendering: pixelated;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            padding: 20px;
+        }
+        
+        #settings-window {
+            width: 300px;
+            height: 200px;
+        }
+        
+        /* НОВОЕ: Окно улучшений больше */
+        #upgrades-window {
+            width: 320px;
+            min-height: 300px;
+            max-height: 80vh;
+            overflow-y: auto;
         }
         
         .close-icon {
@@ -103,6 +136,61 @@
             width: 32px;
             height: 32px;
             image-rendering: pixelated;
+        }
+
+        /* НОВЫЕ СТИЛИ ДЛЯ УЛУЧШЕНИЙ */
+        .upgrade-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin: 8px 0;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .upgrade-item:active {
+            transform: scale(0.98);
+        }
+
+        .upgrade-icon {
+            width: 48px;
+            height: 48px;
+            image-rendering: pixelated;
+            flex-shrink: 0;
+        }
+
+        .upgrade-info {
+            flex-grow: 1;
+            margin-left: 12px;
+            text-align: left;
+            color: white;
+        }
+
+        .upgrade-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .upgrade-description {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+
+        .upgrade-price {
+            font-size: 14px;
+            color: #ffd700;
+        }
+
+        .upgrade-status {
+            font-size: 14px;
+            color: #90ee90;
+            flex-shrink: 0;
+            margin-left: 10px;
         }
 
         /* Анимации */
@@ -136,11 +224,14 @@
             transition: transform 0.5s ease-out, opacity 0.5s ease-out;
             opacity: 1;
         }
+
         /* Убираем синюю подсветку при тапе на всех элементах */
         #settings-btn, 
-        #close-btn,
+        .bottom-btn,
+        .close-icon,
         .setting-row,
-        .setting-icon {
+        .setting-icon,
+        .upgrade-item {
             -webkit-tap-highlight-color: transparent;
             tap-highlight-color: transparent;
             outline: none;
@@ -148,9 +239,10 @@
             user-select: none;
         }
 
-/* Для кнопок настроек добавляем активный стиль */
-         .setting-row:active {
-            transform: scale(0.95); /* Лёгкое нажатие */
+        /* Для кнопок настроек добавляем активный стиль */
+        .setting-row:active,
+        .upgrade-item:active {
+            transform: scale(0.95);
         }
     </style>
 </head>
@@ -166,9 +258,13 @@
     <!-- Кнопка настроек -->
     <img id="settings-btn" src="images/settings_icon.png" alt="⚙️">
     
+    <!-- НОВЫЕ КНОПКИ ВНИЗУ -->
+    <img id="upgrades-btn" src="images/upgrades_icon.png" class="bottom-btn" alt="🛠️">
+    <img id="info-btn" src="images/info_icon.png" class="bottom-btn" alt="ℹ️">
+    
     <!-- Модальное окно настроек -->
-    <div id="settings-modal">
-        <div id="settings-window">
+    <div id="settings-modal" class="modal">
+        <div id="settings-window" class="modal-window">
             <img id="close-btn" src="images/close_icon.png" class="close-icon" alt="✕">
             
             <div class="setting-row" id="music-setting">
@@ -183,11 +279,41 @@
         </div>
     </div>
 
+    <!-- НОВОЕ: Модальное окно улучшений -->
+    <div id="upgrades-modal" class="modal">
+        <div id="upgrades-window" class="modal-window">
+            <img id="close-upgrades" src="images/close_icon.png" class="close-icon" alt="✕">
+            
+            <div class="upgrade-item" data-id="chef">
+                <img src="images/chef_upgrade.png" class="upgrade-icon" alt="👨‍🍳">
+                <div class="upgrade-info">
+                    <div class="upgrade-title">Повар</div>
+                    <div class="upgrade-description">Пассивно готовит пончики: +1/сек за уровень</div>
+                    <div class="upgrade-price">Цена: 50 пончиков</div>
+                </div>
+                <div class="upgrade-status">Ур: 0</div>
+            </div>
+            
+            <!-- Можешь добавить другие улучшения позже -->
+        </div>
+    </div>
+
     <script>
         // === КОНСТАНТЫ И ПЕРЕМЕННЫЕ ===
         let score = 0;
         let musicEnabled = true;
         let soundsEnabled = true;
+        
+        // НОВОЕ: Система улучшений
+        let upgrades = {
+            chef: { 
+                level: 0, 
+                basePrice: 50, 
+                dps: 1 // donuts per second за уровень
+            }
+        };
+        
+        let passiveIncome = 0; // Сколько пончиков в секунду генерируем
         
         const scoreDisplay = document.getElementById("score-text");
         const donut = document.getElementById("donut");
@@ -199,10 +325,19 @@
         const musicSetting = document.getElementById("music-setting");
         const soundSetting = document.getElementById("sound-setting");
 
+        // НОВОЕ: Элементы улучшений
+        const upgradesBtn = document.getElementById("upgrades-btn");
+        const upgradesModal = document.getElementById("upgrades-modal");
+        const closeUpgrades = document.getElementById("close-upgrades");
+        const chefUpgrade = document.querySelector('[data-id="chef"]');
+
+        // КОНСТАНТА для спрайта (оптимизация)
+        const DONUT_SPRITE_URL = "url('./images/donut_sprite.png')";
+
         // === ФУНКЦИИ ФОРМАТИРОВАНИЯ ===
         function formatNumber(num) {
             if (num < 1000) return num.toString();
-            const suffixes = ["", "K", "M", "B", "T"];
+            const suffixes = ["", "K", "M", "B", "T", "Qa", "Qi"];
             const tier = Math.floor(Math.log10(num) / 3);
             if (tier >= suffixes.length) return "∞";
             const scaled = num / Math.pow(1000, tier);
@@ -212,6 +347,7 @@
 
         // === СИСТЕМА СОХРАНЕНИЯ ===
         function loadSave() {
+            // Загружаем счёт
             const savedScore = localStorage.getItem("donutTap_score");
             if (savedScore) {
                 score = parseInt(savedScore);
@@ -225,6 +361,9 @@
             if (savedMusic !== null) musicEnabled = savedMusic === 'true';
             if (savedSounds !== null) soundsEnabled = savedSounds === 'true';
             
+            // НОВОЕ: Загружаем улучшения
+            loadUpgrades();
+            
             updateSettingsIcons();
         }
 
@@ -235,6 +374,20 @@
         function saveSettings() {
             localStorage.setItem("donutTap_music", musicEnabled.toString());
             localStorage.setItem("donutTap_sounds", soundsEnabled.toString());
+        }
+        
+        // НОВОЕ: Сохранение улучшений
+        function saveUpgrades() {
+            localStorage.setItem("donutTap_upgrades", JSON.stringify(upgrades));
+        }
+        
+        function loadUpgrades() {
+            const saved = localStorage.getItem("donutTap_upgrades");
+            if (saved) {
+                upgrades = JSON.parse(saved);
+                calculatePassiveIncome();
+                updateUpgradesDisplay();
+            }
         }
         
         function updateSettingsIcons() {
@@ -248,7 +401,7 @@
             const particle = document.createElement('div');
             
             particle.className = 'particle';
-            particle.style.backgroundImage = getComputedStyle(donut).backgroundImage;
+            particle.style.backgroundImage = DONUT_SPRITE_URL;
             particle.style.left = (x - 16) + 'px';
             particle.style.top = (y - 16) + 'px';
             
@@ -288,7 +441,66 @@
             const randomSound = tapSounds[Math.floor(Math.random() * tapSounds.length)];
             const audio = new Audio(randomSound);
             audio.volume = 0.3;
-            audio.play().catch(e => console.log("Audio play failed:", e));
+            audio.play().catch(e => {
+                console.log("Audio play failed:", e);
+                // Если звуки не работают, отключаем их
+                soundsEnabled = false;
+                saveSettings();
+                updateSettingsIcons();
+            });
+        }
+
+        // === НОВАЯ СИСТЕМА: ПАССИВНЫЙ ДОХОД ===
+        function calculatePassiveIncome() {
+            // Считаем общий доход в секунду от всех улучшений
+            passiveIncome = upgrades.chef.level * upgrades.chef.dps;
+            return passiveIncome;
+        }
+
+        function updatePassiveIncome() {
+            if (passiveIncome > 0) {
+                score += passiveIncome;
+                scoreDisplay.textContent = formatNumber(score);
+                saveProgress();
+            }
+        }
+
+        // === НОВАЯ СИСТЕМА: УЛУЧШЕНИЯ ===
+        function buyUpgrade(upgradeId) {
+            const upgrade = upgrades[upgradeId];
+            // Цена растет с каждым уровнем: basePrice * (уровень + 1)
+            const price = upgrade.basePrice * (upgrade.level + 1);
+            
+            if (score >= price) {
+                score -= price;
+                upgrade.level++;
+                
+                // Обновляем интерфейс
+                scoreDisplay.textContent = formatNumber(score);
+                updateUpgradesDisplay();
+                calculatePassiveIncome(); // Пересчитываем пассивный доход
+                saveProgress();
+                saveUpgrades();
+                
+                // Можно добавить звук покупки позже
+                console.log(`Куплено улучшение ${upgradeId} уровень ${upgrade.level}`);
+            }
+        }
+
+        function updateUpgradesDisplay() {
+            if (chefUpgrade) {
+                const chef = upgrades.chef;
+                const nextPrice = chef.basePrice * (chef.level + 1);
+                
+                chefUpgrade.querySelector('.upgrade-status').textContent = 
+                    `Ур: ${chef.level}`;
+                chefUpgrade.querySelector('.upgrade-price').textContent = 
+                    `Цена: ${formatNumber(nextPrice)}`;
+                
+                // Меняем цвет, если не хватает денег
+                const canAfford = score >= nextPrice;
+                chefUpgrade.style.opacity = canAfford ? '1' : '0.6';
+            }
         }
 
         // === ОСНОВНАЯ ЛОГИКА ===
@@ -297,15 +509,18 @@
             scoreDisplay.textContent = formatNumber(score);
             saveProgress();
             
+            // Анимация пончика
             donut.classList.remove("jump-animation");
-            void donut.offsetWidth;
+            void donut.offsetWidth; // Триггер перезапуска анимации
             donut.classList.add("jump-animation");
             
             createParticle(event.clientX, event.clientY);
             playTapSound();
         }
 
-        // === НАСТРОЙКИ ===
+        // === ОБРАБОТЧИКИ СОБЫТИЙ ===
+        
+        // Настройки
         settingsBtn.addEventListener('click', () => {
             settingsModal.style.display = 'block';
         });
@@ -318,7 +533,6 @@
             musicEnabled = !musicEnabled;
             saveSettings();
             updateSettingsIcons();
-            // Здесь позже добавим управление музыкой
         });
 
         soundSetting.addEventListener('click', () => {
@@ -327,9 +541,26 @@
             updateSettingsIcons();
         });
 
+        // НОВЫЕ ОБРАБОТЧИКИ: Улучшения
+        upgradesBtn.addEventListener('click', () => {
+            upgradesModal.style.display = 'block';
+            updateUpgradesDisplay(); // Обновляем цены при открытии
+        });
+
+        closeUpgrades.addEventListener('click', () => {
+            upgradesModal.style.display = 'none';
+        });
+
+        chefUpgrade.addEventListener('click', function() {
+            buyUpgrade('chef');
+        });
+
         // === ЗАПУСК ИГРЫ ===
         donut.addEventListener("click", tap);
         loadSave();
+        
+        // Запускаем пассивный доход (каждую секунду)
+        setInterval(updatePassiveIncome, 1000);
     </script>
 </body>
 </html>
