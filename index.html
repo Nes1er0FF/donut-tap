@@ -293,8 +293,6 @@
                 </div>
                 <div class="upgrade-status">Куплено: 0</div>
             </div>
-            
-            <!-- Можешь добавить другие улучшения позже -->
         </div>
     </div>
 
@@ -304,7 +302,7 @@
         let musicEnabled = true;
         let soundsEnabled = true;
         
-        // НОВОЕ: Cookie Clicker система улучшений
+        // ПРАВИЛЬНАЯ СТРУКТУРА УЛУЧШЕНИЙ
         let upgrades = {
             chef: { 
                 owned: 0,           // Количество купленных поваров
@@ -313,23 +311,10 @@
             }
         };
         
-        let passiveIncome = 0; // Сколько пончиков в секунду генерируем
+        let passiveIncome = 0;
         
         const scoreDisplay = document.getElementById("score-text");
         const donut = document.getElementById("donut");
-        const settingsBtn = document.getElementById("settings-btn");
-        const settingsModal = document.getElementById("settings-modal");
-        const closeBtn = document.getElementById("close-btn");
-        const musicIcon = document.getElementById("music-icon");
-        const soundIcon = document.getElementById("sound-icon");
-        const musicSetting = document.getElementById("music-setting");
-        const soundSetting = document.getElementById("sound-setting");
-
-        // НОВОЕ: Элементы улучшений
-        const upgradesBtn = document.getElementById("upgrades-btn");
-        const upgradesModal = document.getElementById("upgrades-modal");
-        const closeUpgrades = document.getElementById("close-upgrades");
-        const chefUpgrade = document.querySelector('[data-id="chef"]');
 
         // КОНСТАНТА для спрайта (оптимизация)
         const DONUT_SPRITE_URL = "url('./images/donut_sprite.png')";
@@ -345,25 +330,68 @@
             return formatted + suffixes[tier];
         }
 
+        // === СИСТЕМА УЛУЧШЕНИЙ ===
+        function calculatePassiveIncome() {
+            passiveIncome = upgrades.chef.owned * upgrades.chef.production;
+            return passiveIncome;
+        }
+
+        function updatePassiveIncome() {
+            if (passiveIncome > 0) {
+                score += passiveIncome;
+                scoreDisplay.textContent = formatNumber(score);
+                saveProgress();
+            }
+        }
+
+        function buyUpgrade(upgradeId) {
+            const upgrade = upgrades[upgradeId];
+            const price = Math.floor(upgrade.basePrice * Math.pow(1.15, upgrade.owned));
+            
+            if (score >= price) {
+                score -= price;
+                upgrade.owned++;
+                
+                scoreDisplay.textContent = formatNumber(score);
+                updateUpgradesDisplay();
+                calculatePassiveIncome();
+                saveProgress();
+                saveUpgrades();
+            }
+        }
+
+        function updateUpgradesDisplay() {
+            const chefUpgrade = document.querySelector('[data-id="chef"]');
+            if (chefUpgrade) {
+                const chef = upgrades.chef;
+                const nextPrice = Math.floor(chef.basePrice * Math.pow(1.15, chef.owned));
+                const totalProduction = chef.owned * chef.production;
+                
+                chefUpgrade.querySelector('.upgrade-status').textContent = `Куплено: ${chef.owned}`;
+                chefUpgrade.querySelector('.upgrade-price').textContent = `Цена: ${formatNumber(nextPrice)}`;
+                chefUpgrade.querySelector('.upgrade-description').textContent = 
+                    `Производит: ${chef.production}/сек (Всего: +${totalProduction}/сек)`;
+                
+                const canAfford = score >= nextPrice;
+                chefUpgrade.style.opacity = canAfford ? '1' : '0.6';
+            }
+        }
+
         // === СИСТЕМА СОХРАНЕНИЯ ===
         function loadSave() {
-            // Загружаем счёт
             const savedScore = localStorage.getItem("donutTap_score");
             if (savedScore) {
                 score = parseInt(savedScore);
                 scoreDisplay.textContent = formatNumber(score);
             }
             
-            // Загружаем настройки
             const savedMusic = localStorage.getItem("donutTap_music");
             const savedSounds = localStorage.getItem("donutTap_sounds");
             
             if (savedMusic !== null) musicEnabled = savedMusic === 'true';
             if (savedSounds !== null) soundsEnabled = savedSounds === 'true';
             
-            // НОВОЕ: Загружаем улучшения
             loadUpgrades();
-            
             updateSettingsIcons();
         }
 
@@ -376,7 +404,6 @@
             localStorage.setItem("donutTap_sounds", soundsEnabled.toString());
         }
         
-        // НОВОЕ: Сохранение улучшений
         function saveUpgrades() {
             localStorage.setItem("donutTap_upgrades", JSON.stringify(upgrades));
         }
@@ -391,6 +418,8 @@
         }
         
         function updateSettingsIcons() {
+            const musicIcon = document.getElementById("music-icon");
+            const soundIcon = document.getElementById("sound-icon");
             musicIcon.src = musicEnabled ? 'images/music_on.png' : 'images/music_off.png';
             soundIcon.src = soundsEnabled ? 'images/sound_on.png' : 'images/sound_off.png';
         }
@@ -443,67 +472,10 @@
             audio.volume = 0.3;
             audio.play().catch(e => {
                 console.log("Audio play failed:", e);
-                // Если звуки не работают, отключаем их
                 soundsEnabled = false;
                 saveSettings();
                 updateSettingsIcons();
             });
-        }
-
-        // === НОВАЯ СИСТЕМА: ПАССИВНЫЙ ДОХОД (Cookie Clicker стиль) ===
-        function calculatePassiveIncome() {
-            // Каждый повар дает 4 пончика/сек
-            passiveIncome = upgrades.chef.owned * upgrades.chef.production;
-            return passiveIncome;
-        }
-
-        function updatePassiveIncome() {
-            if (passiveIncome > 0) {
-                score += passiveIncome;
-                scoreDisplay.textContent = formatNumber(score);
-                saveProgress();
-            }
-        }
-
-        // === НОВАЯ СИСТЕМА: УЛУЧШЕНИЯ (Cookie Clicker стиль) ===
-        function buyUpgrade(upgradeId) {
-            const upgrade = upgrades[upgradeId];
-            
-            // Цена растет на 15% с каждой покупкой (классическая формула Cookie Clicker)
-            const price = Math.floor(upgrade.basePrice * Math.pow(1.15, upgrade.owned));
-            
-            if (score >= price) {
-                score -= price;
-                upgrade.owned++;
-                
-                // Обновляем интерфейс
-                scoreDisplay.textContent = formatNumber(score);
-                updateUpgradesDisplay();
-                calculatePassiveIncome(); // Пересчитываем пассивный доход
-                saveProgress();
-                saveUpgrades();
-                
-                console.log(`Куплен повар №${upgrade.owned}. Производство: +${upgrade.production}/сек`);
-            }
-        }
-
-        function updateUpgradesDisplay() {
-            if (chefUpgrade) {
-                const chef = upgrades.chef;
-                const nextPrice = Math.floor(chef.basePrice * Math.pow(1.15, chef.owned));
-                const totalProduction = chef.owned * chef.production;
-                
-                chefUpgrade.querySelector('.upgrade-status').textContent = 
-                    `Куплено: ${chef.owned}`;
-                chefUpgrade.querySelector('.upgrade-price').textContent = 
-                    `Цена: ${formatNumber(nextPrice)}`;
-                chefUpgrade.querySelector('.upgrade-description').textContent = 
-                    `Производит: ${chef.production}/сек (Всего: +${totalProduction}/сек)`;
-                
-                // Меняем цвет, если не хватает денег
-                const canAfford = score >= nextPrice;
-                chefUpgrade.style.opacity = canAfford ? '1' : '0.6';
-            }
         }
 
         // === ОСНОВНАЯ ЛОГИКА ===
@@ -512,9 +484,8 @@
             scoreDisplay.textContent = formatNumber(score);
             saveProgress();
             
-            // Анимация пончика
             donut.classList.remove("jump-animation");
-            void donut.offsetWidth; // Триггер перезапуска анимации
+            void donut.offsetWidth;
             donut.classList.add("jump-animation");
             
             createParticle(event.clientX, event.clientY);
@@ -524,45 +495,43 @@
         // === ОБРАБОТЧИКИ СОБЫТИЙ ===
         
         // Настройки
-        settingsBtn.addEventListener('click', () => {
-            settingsModal.style.display = 'block';
+        document.getElementById('settings-btn').addEventListener('click', () => {
+            document.getElementById('settings-modal').style.display = 'block';
         });
 
-        closeBtn.addEventListener('click', () => {
-            settingsModal.style.display = 'none';
+        document.getElementById('close-btn').addEventListener('click', () => {
+            document.getElementById('settings-modal').style.display = 'none';
         });
 
-        musicSetting.addEventListener('click', () => {
+        document.getElementById('music-setting').addEventListener('click', () => {
             musicEnabled = !musicEnabled;
             saveSettings();
             updateSettingsIcons();
         });
 
-        soundSetting.addEventListener('click', () => {
+        document.getElementById('sound-setting').addEventListener('click', () => {
             soundsEnabled = !soundsEnabled;
             saveSettings();
             updateSettingsIcons();
         });
 
-        // НОВЫЕ ОБРАБОТЧИКИ: Улучшения
-        upgradesBtn.addEventListener('click', () => {
-            upgradesModal.style.display = 'block';
-            updateUpgradesDisplay(); // Обновляем цены при открытии
+        // Улучшения
+        document.getElementById('upgrades-btn').addEventListener('click', () => {
+            document.getElementById('upgrades-modal').style.display = 'block';
+            updateUpgradesDisplay();
         });
 
-        closeUpgrades.addEventListener('click', () => {
-            upgradesModal.style.display = 'none';
+        document.getElementById('close-upgrades').addEventListener('click', () => {
+            document.getElementById('upgrades-modal').style.display = 'none';
         });
 
-        chefUpgrade.addEventListener('click', function() {
+        document.querySelector('[data-id="chef"]').addEventListener('click', function() {
             buyUpgrade('chef');
         });
 
         // === ЗАПУСК ИГРЫ ===
         donut.addEventListener("click", tap);
         loadSave();
-        
-        // Запускаем пассивный доход (каждую секунду)
         setInterval(updatePassiveIncome, 1000);
     </script>
 </body>
