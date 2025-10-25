@@ -288,7 +288,7 @@
                 <img src="images/chef_upgrade.png" class="upgrade-icon" alt="👨‍🍳">
                 <div class="upgrade-info">
                     <div class="upgrade-title">Повар</div>
-                    <div class="upgrade-description">Пассивно готовит пончики: +1/сек за уровень</div>
+                    <div class="upgrade-description">Производит: 4/сек (Всего: +0/сек)</div>                           
                     <div class="upgrade-price">Цена: 50 пончиков</div>
                 </div>
                 <div class="upgrade-status">Ур: 0</div>
@@ -306,12 +306,12 @@
         
         // НОВОЕ: Система улучшений
         let upgrades = {
-            chef: { 
-                level: 0, 
-                basePrice: 50, 
-                dps: 1 // donuts per second за уровень
-            }
-        };
+    chef: { 
+        owned: 0,           // Количество купленных поваров
+        basePrice: 50,      // Базовая цена первого повара
+        production: 4       // Производство одного повара (4 пончика/сек)
+    }
+    };
         
         let passiveIncome = 0; // Сколько пончиков в секунду генерируем
         
@@ -452,9 +452,9 @@
 
         // === НОВАЯ СИСТЕМА: ПАССИВНЫЙ ДОХОД ===
         function calculatePassiveIncome() {
-            // Считаем общий доход в секунду от всех улучшений
-            passiveIncome = upgrades.chef.level * upgrades.chef.dps;
-            return passiveIncome;
+    // Каждый повар дает 4 пончика/сек
+    passiveIncome = upgrades.chef.owned * upgrades.chef.production;
+    return passiveIncome;
         }
 
         function updatePassiveIncome() {
@@ -467,40 +467,43 @@
 
         // === НОВАЯ СИСТЕМА: УЛУЧШЕНИЯ ===
         function buyUpgrade(upgradeId) {
-            const upgrade = upgrades[upgradeId];
-            // Цена растет с каждым уровнем: basePrice * (уровень + 1)
-            const price = upgrade.basePrice * (upgrade.level + 1);
-            
-            if (score >= price) {
-                score -= price;
-                upgrade.level++;
-                
-                // Обновляем интерфейс
-                scoreDisplay.textContent = formatNumber(score);
-                updateUpgradesDisplay();
-                calculatePassiveIncome(); // Пересчитываем пассивный доход
-                saveProgress();
-                saveUpgrades();
-                
-                // Можно добавить звук покупки позже
-                console.log(`Куплено улучшение ${upgradeId} уровень ${upgrade.level}`);
-            }
+    const upgrade = upgrades[upgradeId];
+    
+    // Цена растет на 20% с каждой покупкой (как в Cookie Clicker)
+    const price = Math.floor(upgrade.basePrice * Math.pow(1.15, upgrade.owned));
+    
+    if (score >= price) {
+        score -= price;
+        upgrade.owned++;
+        
+        // Обновляем интерфейс
+        scoreDisplay.textContent = formatNumber(score);
+        updateUpgradesDisplay();
+        calculatePassiveIncome();
+        saveProgress();
+        saveUpgrades();
+        
+        console.log(`Куплен повар №${upgrade.owned}. Производство: +${upgrade.production}/сек`);
+    }
         }
 
         function updateUpgradesDisplay() {
-            if (chefUpgrade) {
-                const chef = upgrades.chef;
-                const nextPrice = chef.basePrice * (chef.level + 1);
-                
-                chefUpgrade.querySelector('.upgrade-status').textContent = 
-                    `Ур: ${chef.level}`;
-                chefUpgrade.querySelector('.upgrade-price').textContent = 
-                    `Цена: ${formatNumber(nextPrice)}`;
-                
-                // Меняем цвет, если не хватает денег
-                const canAfford = score >= nextPrice;
-                chefUpgrade.style.opacity = canAfford ? '1' : '0.6';
-            }
+    if (chefUpgrade) {
+        const chef = upgrades.chef;
+        const nextPrice = Math.floor(chef.basePrice * Math.pow(1.15, chef.owned));
+        const totalProduction = chef.owned * chef.production;
+        
+        chefUpgrade.querySelector('.upgrade-status').textContent = 
+            `Куплено: ${chef.owned}`;
+        chefUpgrade.querySelector('.upgrade-price').textContent = 
+            `Цена: ${formatNumber(nextPrice)}`;
+        chefUpgrade.querySelector('.upgrade-description').textContent = 
+            `Производит: ${chef.production}/сек (Всего: +${totalProduction}/сек)`;
+        
+        // Меняем цвет, если не хватает денег
+        const canAfford = score >= nextPrice;
+        chefUpgrade.style.opacity = canAfford ? '1' : '0.6';
+    }
         }
 
         // === ОСНОВНАЯ ЛОГИКА ===
