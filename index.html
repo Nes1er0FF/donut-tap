@@ -40,6 +40,22 @@
             touch-action: manipulation;
         }
         
+        /* Временная кнопка сброса */
+        #reset-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 3000;
+            padding: 8px 12px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
         /* Стили настроек */
         #settings-btn {
             position: fixed;
@@ -247,6 +263,9 @@
     </style>
 </head>
 <body>
+    <!-- Временная кнопка сброса -->
+    <button id="reset-btn" onclick="clearSave()">СБРОС СОХРАНЕНИЙ</button>
+    
     <div id="score">
         <img id="donut-icon" src="images/mini_donut.png" alt="🍩">
         <span id="score-text">0</span>
@@ -318,6 +337,16 @@
 
         // КОНСТАНТА для спрайта (оптимизация)
         const DONUT_SPRITE_URL = "url('./images/donut_sprite.png')";
+
+        // === ФУНКЦИЯ СБРОСА СОХРАНЕНИЙ ===
+        function clearSave() {
+            localStorage.removeItem("donutTap_score");
+            localStorage.removeItem("donutTap_upgrades");
+            localStorage.removeItem("donutTap_music");
+            localStorage.removeItem("donutTap_sounds");
+            alert("Сохранения очищены! Страница перезагрузится.");
+            location.reload();
+        }
 
         // === ФУНКЦИИ ФОРМАТИРОВАНИЯ ===
         function formatNumber(num) {
@@ -411,9 +440,14 @@
         function loadUpgrades() {
             const saved = localStorage.getItem("donutTap_upgrades");
             if (saved) {
-                upgrades = JSON.parse(saved);
-                calculatePassiveIncome();
-                updateUpgradesDisplay();
+                try {
+                    upgrades = JSON.parse(saved);
+                    calculatePassiveIncome();
+                    updateUpgradesDisplay();
+                } catch (e) {
+                    console.log("Ошибка загрузки улучшений, сброс...");
+                    clearSave();
+                }
             }
         }
         
