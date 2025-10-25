@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Donut Tap v0.3</title>
+    <title>Donut Tap v0.4</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
         body { 
@@ -39,14 +39,83 @@
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
         }
+        
+        /* Стили настроек */
+        #settings-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            z-index: 1000;
+            image-rendering: pixelated;
+        }
+        
+        #settings-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+        }
+        
+        #settings-window {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 200px;
+            background: url('images/menu_background.png') center/contain no-repeat;
+            image-rendering: pixelated;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .close-icon {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            image-rendering: pixelated;
+        }
+        
+        .setting-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            image-rendering: pixelated;
+        }
+        
+        .setting-icon {
+            width: 32px;
+            height: 32px;
+            image-rendering: pixelated;
+        }
+
+        /* Анимации */
         @keyframes jump {
             0% { transform: translate(-50%, -50%) scale(1); }
             50% { transform: translate(-50%, -60%) scale(1.1); }
             100% { transform: translate(-50%, -50%) scale(1); }
         }
+        
         .jump-animation {
             animation: jump 0.3s ease-in-out;
         }
+        
         #particles-container {
             position: fixed;
             top: 0;
@@ -56,6 +125,7 @@
             pointer-events: none;
             z-index: 100;
         }
+        
         .particle {
             position: absolute;
             width: 32px;
@@ -76,55 +146,87 @@
     
     <div id="donut"></div>
     <div id="particles-container"></div>
+    
+    <!-- Кнопка настроек -->
+    <img id="settings-btn" src="images/settings_icon.png" alt="⚙️">
+    
+    <!-- Модальное окно настроек -->
+    <div id="settings-modal">
+        <div id="settings-window">
+            <img id="close-btn" src="images/close_icon.png" class="close-icon" alt="✕">
+            
+            <div class="setting-row" id="music-setting">
+                <img id="music-icon" src="images/music_on.png" class="setting-icon" alt="🎵">
+                <span>Музыка</span>
+            </div>
+            
+            <div class="setting-row" id="sound-setting">
+                <img id="sound-icon" src="images/sound_on.png" class="setting-icon" alt="🔊">
+                <span>Звуки</span>
+            </div>
+        </div>
+    </div>
 
     <script>
-       const tapSounds = [
-    'sounds/tap1.mp3',
-    'sounds/tap2.mp3',
-    'sounds/tap3.mp3',
-    'sounds/tap4.mp3', 
-    'sounds/tap5.mp3',
-    'sounds/tap6.mp3',
-    'sounds/tap7.mp3'
-];
-
-// Функция случайного воспроизведения
-        function playTapSound() {
-        const randomSound = tapSounds[Math.floor(Math.random() * tapSounds.length)];
-        const audio = new Audio(randomSound);
-        audio.volume = 0.3; // Громкость 30%
-        audio.play();
-      } 
+        // === КОНСТАНТЫ И ПЕРЕМЕННЫЕ ===
         let score = 0;
+        let musicEnabled = true;
+        let soundsEnabled = true;
+        
         const scoreDisplay = document.getElementById("score-text");
         const donut = document.getElementById("donut");
+        const settingsBtn = document.getElementById("settings-btn");
+        const settingsModal = document.getElementById("settings-modal");
+        const closeBtn = document.getElementById("close-btn");
+        const musicIcon = document.getElementById("music-icon");
+        const soundIcon = document.getElementById("sound-icon");
+        const musicSetting = document.getElementById("music-setting");
+        const soundSetting = document.getElementById("sound-setting");
 
+        // === ФУНКЦИИ ФОРМАТИРОВАНИЯ ===
         function formatNumber(num) {
             if (num < 1000) return num.toString();
-            
             const suffixes = ["", "K", "M", "B", "T"];
             const tier = Math.floor(Math.log10(num) / 3);
-            
             if (tier >= suffixes.length) return "∞";
-            
             const scaled = num / Math.pow(1000, tier);
             const formatted = scaled % 1 === 0 ? scaled.toFixed(0) : scaled.toFixed(1);
-            
             return formatted + suffixes[tier];
         }
 
+        // === СИСТЕМА СОХРАНЕНИЯ ===
         function loadSave() {
             const savedScore = localStorage.getItem("donutTap_score");
             if (savedScore) {
                 score = parseInt(savedScore);
                 scoreDisplay.textContent = formatNumber(score);
             }
+            
+            // Загружаем настройки
+            const savedMusic = localStorage.getItem("donutTap_music");
+            const savedSounds = localStorage.getItem("donutTap_sounds");
+            
+            if (savedMusic !== null) musicEnabled = savedMusic === 'true';
+            if (savedSounds !== null) soundsEnabled = savedSounds === 'true';
+            
+            updateSettingsIcons();
         }
 
         function saveProgress() {
             localStorage.setItem("donutTap_score", score.toString());
         }
+        
+        function saveSettings() {
+            localStorage.setItem("donutTap_music", musicEnabled.toString());
+            localStorage.setItem("donutTap_sounds", soundsEnabled.toString());
+        }
+        
+        function updateSettingsIcons() {
+            musicIcon.src = musicEnabled ? 'images/music_on.png' : 'images/music_off.png';
+            soundIcon.src = soundsEnabled ? 'images/sound_on.png' : 'images/sound_off.png';
+        }
 
+        // === СИСТЕМА ЧАСТИЦ ===
         function createParticle(x, y) {
             const container = document.getElementById('particles-container');
             const particle = document.createElement('div');
@@ -153,6 +255,27 @@
             }, 500);
         }
 
+        // === СИСТЕМА ЗВУКОВ ===
+        const tapSounds = [
+            'sounds/tap1.mp3',
+            'sounds/tap2.mp3',
+            'sounds/tap3.mp3',
+            'sounds/tap4.mp3',
+            'sounds/tap5.mp3',
+            'sounds/tap6.mp3',
+            'sounds/tap7.mp3'
+        ];
+
+        function playTapSound() {
+            if (!soundsEnabled) return;
+            
+            const randomSound = tapSounds[Math.floor(Math.random() * tapSounds.length)];
+            const audio = new Audio(randomSound);
+            audio.volume = 0.3;
+            audio.play().catch(e => console.log("Audio play failed:", e));
+        }
+
+        // === ОСНОВНАЯ ЛОГИКА ===
         function tap(event) {
             score++;
             scoreDisplay.textContent = formatNumber(score);
@@ -161,10 +284,34 @@
             donut.classList.remove("jump-animation");
             void donut.offsetWidth;
             donut.classList.add("jump-animation");
+            
             createParticle(event.clientX, event.clientY);
             playTapSound();
         }
 
+        // === НАСТРОЙКИ ===
+        settingsBtn.addEventListener('click', () => {
+            settingsModal.style.display = 'block';
+        });
+
+        closeBtn.addEventListener('click', () => {
+            settingsModal.style.display = 'none';
+        });
+
+        musicSetting.addEventListener('click', () => {
+            musicEnabled = !musicEnabled;
+            saveSettings();
+            updateSettingsIcons();
+            // Здесь позже добавим управление музыкой
+        });
+
+        soundSetting.addEventListener('click', () => {
+            soundsEnabled = !soundsEnabled;
+            saveSettings();
+            updateSettingsIcons();
+        });
+
+        // === ЗАПУСК ИГРЫ ===
         donut.addEventListener("click", tap);
         loadSave();
     </script>
