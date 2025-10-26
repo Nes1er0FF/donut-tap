@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Donut Tap v0.5</title>
+    <title>Donut Tap v0.6</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
         body { 
@@ -329,9 +329,9 @@
                 production: 4       // Производство одного повара (4 пончика/сек)
             }
         };
-        // Добавь после объявления upgrades
-        let lastSaveTime = Date.now();
+        
         let passiveIncome = 0;
+        let lastSaveTime = Date.now(); // ВРЕМЯ ПОСЛЕДНЕГО СОХРАНЕНИЯ
         
         const scoreDisplay = document.getElementById("score-text");
         const donut = document.getElementById("donut");
@@ -345,6 +345,7 @@
             localStorage.removeItem("donutTap_upgrades");
             localStorage.removeItem("donutTap_music");
             localStorage.removeItem("donutTap_sounds");
+            localStorage.removeItem("donutTap_lastSaveTime");
             alert("Сохранения очищены! Страница перезагрузится.");
             location.reload();
         }
@@ -407,27 +408,49 @@
             }
         }
 
+        // === СИСТЕМА ОФФЛАЙН-ПРОГРЕССА ===
+        function calculateOfflineProgress() {
+            const currentTime = Date.now();
+            const savedTime = localStorage.getItem("donutTap_lastSaveTime");
+            
+            if (savedTime) {
+                const offlineTime = currentTime - parseInt(savedTime);
+                const offlineSeconds = Math.floor(offlineTime / 1000);
+                
+                // Максимум 24 часа оффлайна (86400 секунд)
+                const maxOfflineSeconds = 86400;
+                const actualOfflineSeconds = Math.min(offlineSeconds, maxOfflineSeconds);
+                
+                if (actualOfflineSeconds > 0 && passiveIncome > 0) {
+                    const offlineDonuts = passiveIncome * actualOfflineSeconds;
+                    if (offlineDonuts > 0) {
+                        score += offlineDonuts;
+                        scoreDisplay.textContent = formatNumber(score);
+                        saveProgress();
+                        
+                        // Показываем уведомление в консоли
+                        console.log(`🕒 Оффлайн-прогресс: +${formatNumber(offlineDonuts)} пончиков за ${formatTime(actualOfflineSeconds)}`);
+                    }
+                }
+            }
+            
+            lastSaveTime = currentTime;
+        }
+
+        function formatTime(seconds) {
+            if (seconds < 60) return `${seconds} сек`;
+            if (seconds < 3600) return `${Math.floor(seconds / 60)} мин`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)} час`;
+            return `${Math.floor(seconds / 86400)} дн`;
+        }
+
         // === СИСТЕМА СОХРАНЕНИЯ ===
-        // Добавь в функцию loadSave()
         function loadSave() {
             const savedScore = localStorage.getItem("donutTap_score");
             if (savedScore) {
-               score = parseInt(savedScore);
-            scoreDisplay.textContent = formatNumber(score);
-              }
-    
-        // Загружаем время последнего сохранения
-            const savedTime = localStorage.getItem("donutTap_lastSaveTime");
-            if (savedTime) {
-         lastSaveTime = parseInt(savedTime);
-        }
-    
-    // ... остальной код загрузки
-    
-    // ВЫЗЫВАЕМ РАСЧЕТ ОФФЛАЙН-ПРОГРЕССА ПОСЛЕ ЗАГРУЗКИ
-        calculateOfflineProgress();
-              }
-         }
+                score = parseInt(savedScore);
+                scoreDisplay.textContent = formatNumber(score);
+            }
             
             const savedMusic = localStorage.getItem("donutTap_music");
             const savedSounds = localStorage.getItem("donutTap_sounds");
@@ -437,16 +460,14 @@
             
             loadUpgrades();
             updateSettingsIcons();
+            
+            // ВЫЗЫВАЕМ ОФФЛАЙН-ПРОГРЕСС ПОСЛЕ ЗАГРУЗКИ ВСЕХ ДАННЫХ
+            calculateOfflineProgress();
         }
 
         function saveProgress() {
             localStorage.setItem("donutTap_score", score.toString());
-            // Добавь в функцию saveProgress()
-        function saveProgress() {
-            localStorage.setItem("donutTap_score", score.toString());
-            localStorage.setItem("donutTap_lastSaveTime", Date.now().toString()); // Сохраняем время
-        }
-            
+            localStorage.setItem("donutTap_lastSaveTime", Date.now().toString());
         }
         
         function saveSettings() {
@@ -477,26 +498,8 @@
             const soundIcon = document.getElementById("sound-icon");
             musicIcon.src = musicEnabled ? 'images/music_on.png' : 'images/music_off.png';
             soundIcon.src = soundsEnabled ? 'images/sound_on.png' : 'images/sound_off.png';
-        }        
-        function calculateOfflineProgress() {
-            const currentTime = Date.now();
-            const offlineTime = currentTime - lastSaveTime; // В миллисекундах
-            const offlineSeconds = Math.floor(offlineTime / 1000); // Переводим в секунды
-    
-            if (offlineSeconds > 0) {
-            const offlineDonuts = passiveIncome * offlineSeconds;
-            if (offlineDonuts > 0) {
-            score += offlineDonuts;
-            scoreDisplay.textContent = formatNumber(score);
-            saveProgress();
-            
-            // Можно показать сообщение (опционально)
-            console.log(`За время отсутствия: +${formatNumber(offlineDonuts)} пончиков!`);
-            }
         }
-    
-    lastSaveTime = currentTime; // Обновляем время
-        }
+
         // === СИСТЕМА ЧАСТИЦ ===
         function createParticle(x, y) {
             const container = document.getElementById('particles-container');
@@ -601,11 +604,12 @@
         document.querySelector('[data-id="chef"]').addEventListener('click', function() {
             buyUpgrade('chef');
         });
-        // Добавь в конец скрипта (перед addEventListener)
+
+        // СОХРАНЕНИЕ ПРИ ЗАКРЫТИИ СТРАНИЦЫ
         window.addEventListener('beforeunload', function() {
-            saveProgress(); // Гарантированно сохраняем при закрытии
+            saveProgress();
         });
-        
+
         // === ЗАПУСК ИГРЫ ===
         donut.addEventListener("click", tap);
         loadSave();
