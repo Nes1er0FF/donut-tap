@@ -130,23 +130,7 @@
         }
         
         /* Секция с информацией */
-        /* Контейнер только для кнопки */
-        .info-btn-container {
-            position: absolute;
-            right: 45px;
-            top: 130px;
-            z-index: 10;
-        }
-
-        /* Текст info - независимый элемент */
-        .info-text {
-            position: absolute;
-            right: 60px;   /* Левее кнопки */
-            top: 50px;     /* Выше кнопки */
-            width: 200px;
-            display: none;
-    
-        }
+        
         
         .close-icon {
             position: absolute;
@@ -160,7 +144,37 @@
         
         .setting-row {
             display: flex;
-            align-items: center;
+          /* Контейнер для кнопки */
+.info-btn-container {
+    position: absolute;
+    right: 45px;
+    top: 130px;
+    z-index: 10;
+}
+
+/* Стили самой кнопки */
+.info-btn {
+    width: 32px;        /* Размер как был */
+    height: 32px;
+    cursor: pointer;
+    image-rendering: pixelated;
+}
+
+/* Стили текста */
+.info-text {
+    position: absolute;
+    right: 60px;        /* Левее кнопки */
+    top: 50px;          /* Выше кнопки */
+    width: 200px;
+    background: rgba(0, 0, 0, 0.85);
+    padding: 12px;
+    border-radius: 8px;
+    color: white;
+    font-size: 14px;
+    border: 2px solid #fff;
+    display: none;      /* Изначально скрыт */
+    z-index: 20;
+       }  align-items: center;
             gap: 15px;
             margin: 15px 0;
             color: white;
@@ -327,11 +341,13 @@
             <img id="close-upgrades" src="images/close_icon.png" class="close-icon" alt="✕">
             
             <!-- НОВАЯ СЕКЦИЯ: Кнопка информации слева -->
-    <div class="info-btn-container">
-        <img id="upgrade-info-btn" src="images/info_icon.png" class="info-btn" alt="ℹ️">
-            </div>
-            <div id="upgrade-details" class="info-text" style="display: none;"></div>
-            </div>
+    <!-- Контейнер с кнопкой -->
+<div class="info-btn-container">
+    <img id="upgrade-info-btn" src="images/info_icon.png" class="info-btn" alt="ℹ️">
+</div>
+
+<!-- Отдельный блок для текста -->
+<div id="upgrade-details" class="info-text"></div>
             
             <!-- УПРОЩЁННАЯ карточка повара -->
             <div class="upgrade-item" data-id="chef">
