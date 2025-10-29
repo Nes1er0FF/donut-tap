@@ -129,24 +129,40 @@
             position: relative; /* Для позиционирования info-кнопки */
         }
         
-        /* Секция с информацией */
+        /* Секция с информацией - ИСПРАВЛЕННАЯ */
         .info-section {
-    position: absolute;
-    right: 45px;
-    top: 130px;
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    z-index: 10;
-}
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            z-index: 10;
+        }
 
-.info-text {
-    position: absolute;
-    right: 60px;    /* Левее кнопки */
-    top: 50px;      /* Выше кнопки */
-    width: 200px;
-    /* остальные стили остаются */
-}
+        .info-btn {
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            image-rendering: pixelated;
+            flex-shrink: 0;
+        }
+
+        .info-text {
+            background: rgba(0, 0, 0, 0.85);
+            padding: 12px;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            border: 2px solid #fff;
+            max-width: 200px;
+            text-align: left;
+            line-height: 1.4;
+            position: absolute;
+            right: 40px;    /* Сдвигаем левее кнопки */
+            top: 0;
+            display: none;
+        }
         
         .close-icon {
             position: absolute;
@@ -320,29 +336,30 @@
             </div>
         </div>
     </div>
+
     <!-- НОВОЕ: Модальное окно улучшений -->
-<div id="upgrades-modal" class="modal">
-    <div id="upgrades-window" class="modal-window">
-        <img id="close-upgrades" src="images/close_icon.png" class="close-icon" alt="✕">
-        
-        <!-- УПРОЩЁННАЯ карточка повара -->
-        <div class="upgrade-item" data-id="chef">
-            <img src="images/chef_upgrade.png" class="upgrade-icon" alt="👨‍🍳">
-            <div class="upgrade-info">
-                <div class="upgrade-title">Повар</div>
-                <div class="upgrade-price">Цена: 50 пончиков</div>
+    <div id="upgrades-modal" class="modal">
+        <div id="upgrades-window" class="modal-window">
+            <img id="close-upgrades" src="images/close_icon.png" class="close-icon" alt="✕">
+            
+            <!-- Info-секция ВНУТРИ окна улучшений -->
+            <div class="info-section">
+                <img id="upgrade-info-btn" src="images/info_icon.png" class="info-btn" alt="ℹ️">
+                <div id="upgrade-details" class="info-text"></div>
             </div>
-            <div class="upgrade-status">0</div>
+            
+            <!-- УПРОЩЁННАЯ карточка повара -->
+            <div class="upgrade-item" data-id="chef">
+                <img src="images/chef_upgrade.png" class="upgrade-icon" alt="👨‍🍳">
+                <div class="upgrade-info">
+                    <div class="upgrade-title">Повар</div>
+                    <div class="upgrade-price">Цена: 50 пончиков</div>
+                </div>
+                <div class="upgrade-status">0</div>
+            </div>
         </div>
     </div>
-    
-    <!-- ВЫНЕСЕННАЯ info-секция (теперь независима) -->
-    <div class="info-section">
-        <img id="upgrade-info-btn" src="images/info_icon.png" class="info-btn" alt="ℹ️">
-        <div id="upgrade-details" class="info-text" style="display: none;"></div>
-    </div>
-</div>
-    
+
     <script>
         // === КОНСТАНТЫ И ПЕРЕМЕННЫЕ ===
         let score = 0;
