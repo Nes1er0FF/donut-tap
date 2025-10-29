@@ -130,7 +130,35 @@
         }
         
         /* Секция с информацией */
-        
+        .info-section {
+            position: absolute;
+            right: 45px;
+            top: 130px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .info-btn {
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            image-rendering: pixelated;
+            flex-shrink: 0;
+        }
+
+        .info-text {
+            background: rgba(0, 0, 0, 0.85);
+            padding: 12px;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            border: 2px solid #fff;
+            max-width: 200px;
+            text-align: left;
+            line-height: 1.4;
+        }
         
         .close-icon {
             position: absolute;
@@ -144,37 +172,7 @@
         
         .setting-row {
             display: flex;
-          /* Контейнер для кнопки */
-.info-btn-container {
-    position: absolute;
-    right: 45px;
-    top: 130px;
-    z-index: 10;
-}
-
-/* Стили самой кнопки */
-.info-btn {
-    width: 32px;        /* Размер как был */
-    height: 32px;
-    cursor: pointer;
-    image-rendering: pixelated;
-}
-
-/* Стили текста */
-.info-text {
-    position: absolute;
-    right: 60px;        /* Левее кнопки */
-    top: 50px;          /* Выше кнопки */
-    width: 200px;
-    background: rgba(0, 0, 0, 0.85);
-    padding: 12px;
-    border-radius: 8px;
-    color: white;
-    font-size: 14px;
-    border: 2px solid #fff;
-    display: none;      /* Изначально скрыт */
-    z-index: 20;
-       }  align-items: center;
+            align-items: center;
             gap: 15px;
             margin: 15px 0;
             color: white;
@@ -341,13 +339,12 @@
             <img id="close-upgrades" src="images/close_icon.png" class="close-icon" alt="✕">
             
             <!-- НОВАЯ СЕКЦИЯ: Кнопка информации слева -->
-    <!-- Контейнер с кнопкой -->
-<div class="info-btn-container">
-    <img id="upgrade-info-btn" src="images/info_icon.png" class="info-btn" alt="ℹ️">
-</div>
-
-<!-- Отдельный блок для текста -->
-<div id="upgrade-details" class="info-text"></div>
+            <div class="info-section">
+                <img id="upgrade-info-btn" src="images/info_icon.png" class="info-btn" alt="ℹ️">
+                <div id="upgrade-details" class="info-text" style="display: none;">
+                    <!-- Сюда выводится информация -->
+                </div>
+            </div>
             
             <!-- УПРОЩЁННАЯ карточка повара -->
             <div class="upgrade-item" data-id="chef">
@@ -682,4 +679,4 @@
         setInterval(updatePassiveIncome, 1000);
     </script>
 </body>
-        </html>
+    </html>
