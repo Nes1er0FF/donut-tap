@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Donut Tap v0.7</title>
+    <title>Donut Tap v0.8</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
         body { 
@@ -121,47 +121,68 @@
         }
         
         #upgrades-window {
-            background: url('images/upgrades_background.png') center/contain no-repeat;
+            background: none !important; /* УБИРАЕМ СТАРЫЙ БЕКГРАУНД */
             width: 320px;
             min-height: 300px;
             max-height: 80vh;
             overflow-y: auto;
-            position: relative; /* Для позиционирования info-кнопки */
+            position: relative;
+            z-index: 2001;
         }
         
-        /* Секция с информацией - ИСПРАВЛЕННАЯ */
+        /* ПОЛНОЭКРАННЫЙ БЕКГРАУНД ДЛЯ УЛУЧШЕНИЙ */
+        #upgrades-fullscreen-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('images/upgrades_background.png') center/cover no-repeat;
+            image-rendering: pixelated;
+            z-index: 1999;
+        }
+        
+        /* Делаем затемнение модалки менее тёмным */
+        #upgrades-modal.modal {
+            background: rgba(0, 0, 0, 0.5); /* Было 0.7 */
+        }
+        
+        /* Секция с информацией */
         .info-section {
-            position: absolute;
-            right: 30px;
-            top: 135px;
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
             display: flex;
             align-items: flex-start;
             gap: 10px;
-            z-index: 10;
-        }
-
-        .info-btn {
-            width: 27px;
-            height: 2гpx;
-            cursor: pointer;
-            image-rendering: pixelated;
-            flex-shrink: 0;
+            z-index: 2002;
         }
 
         .info-text {
-            background: rgba(0, 0, 0, 0.85);
-            padding: 12px;
-            border-radius: 8px;
-            color: white;
-            font-size: 14px;
-            border: 2px solid #fff;
-            max-width: 200px;
-            text-align: left;
-            line-height: 1.4;
             position: absolute;
-            right: 40px;    /* Сдвигаем левее кнопки */
-            top: 0;
-            display: none;
+            right: 60px;
+            top: 50px;
+            width: 200px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: left;
+        }
+        
+        /* Уменьшенная info-кнопка */
+        .info-btn {
+            width: 27px;
+            height: 27px;
+            cursor: pointer;
+            image-rendering: pixelated;
+            -webkit-tap-highlight-color: transparent;
+            transition: transform 0.1s ease;
+        }
+
+        .info-btn:active {
+            transform: scale(0.95);
         }
         
         .close-icon {
@@ -197,11 +218,18 @@
             align-items: center;
             padding: 12px;
             margin: 8px 0;
-            background: rgba(255,255,255,0.1);
-            border-radius: 8px;
+            background: rgba(255,255,255,0.15);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 12px;
             cursor: pointer;
             width: 100%;
             box-sizing: border-box;
+            transition: all 0.2s ease;
+        }
+
+        .upgrade-item:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-2px);
         }
 
         .upgrade-item:active {
@@ -337,16 +365,13 @@
         </div>
     </div>
 
-    <!-- НОВОЕ: Модальное окно улучшений -->
+    <!-- ОБНОВЛЁННОЕ: Модальное окно улучшений -->
     <div id="upgrades-modal" class="modal">
+        <!-- ПОЛНОЭКРАННЫЙ БЕКГРАУНД -->
+        <div id="upgrades-fullscreen-bg"></div>
+        
         <div id="upgrades-window" class="modal-window">
             <img id="close-upgrades" src="images/close_icon.png" class="close-icon" alt="✕">
-            
-            <!-- Info-секция ВНУТРИ окна улучшений -->
-            <div class="info-section">
-                <img id="upgrade-info-btn" src="images/info_icon.png" class="info-btn" alt="ℹ️">
-                <div id="upgrade-details" class="info-text"></div>
-            </div>
             
             <!-- УПРОЩЁННАЯ карточка повара -->
             <div class="upgrade-item" data-id="chef">
@@ -358,8 +383,14 @@
                 <div class="upgrade-status">0</div>
             </div>
         </div>
+        
+        <!-- ВЫНЕСЕННАЯ info-секция -->
+        <div class="info-section">
+            <img id="upgrade-info-btn" src="images/info_icon.png" class="info-btn" alt="ℹ️">
+            <div id="upgrade-details" class="info-text" style="display: none;"></div>
+        </div>
     </div>
-
+    
     <script>
         // === КОНСТАНТЫ И ПЕРЕМЕННЫЕ ===
         let score = 0;
@@ -681,4 +712,4 @@
         setInterval(updatePassiveIncome, 1000);
     </script>
 </body>
-    </html>
+        </html>
