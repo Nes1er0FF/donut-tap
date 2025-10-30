@@ -68,7 +68,7 @@
             image-rendering: pixelated;
         }
         
-        /* НОВЫЕ КНОПКИ ВНИЗУ */
+        /* НОВЫЕ КНОПКИ ВНИЗУ - УБИРАЕМ INFO ОТСЮДА */
         .bottom-btn {
             position: fixed;
             bottom: 20px;
@@ -84,9 +84,7 @@
             left: 20px; 
         }
         
-        #info-btn { 
-            right: 15px; 
-        }
+        /* УБРАНА #info-btn из главного экрана */
         
         /* Модальные окна (общие стили) */
         .modal {
@@ -121,7 +119,7 @@
         }
         
         #upgrades-window {
-            background: none !important; /* УБИРАЕМ СТАРЫЙ БЕКГРАУНД */
+            background: none !important;
             width: 320px;
             min-height: 300px;
             max-height: 80vh;
@@ -144,14 +142,14 @@
         
         /* Делаем затемнение модалки менее тёмным */
         #upgrades-modal.modal {
-            background: rgba(0, 0, 0, 0.5); /* Было 0.7 */
+            background: rgba(0, 0, 0, 0.5);
         }
         
-        /* Секция с информацией */
+        /* Секция с информацией - ТОЛЬКО ДЛЯ УЛУЧШЕНИЙ */
         .info-section {
             position: fixed;
             right: 20px;
-            bottom: 25px;
+            bottom: 20px;
             display: flex;
             align-items: flex-start;
             gap: 10px;
@@ -171,10 +169,10 @@
             text-align: left;
         }
         
-        /* Уменьшенная info-кнопка */
+        /* Info-кнопка - ТОЛЬКО ДЛЯ УЛУЧШЕНИЙ */
         .info-btn {
-            width: 27px;
-            height: 27px;
+            width: 40px;
+            height: 40px;
             cursor: pointer;
             image-rendering: pixelated;
             -webkit-tap-highlight-color: transparent;
@@ -212,7 +210,7 @@
             image-rendering: pixelated;
         }
 
-        /* НОВЫЕ СТИЛИ ДЛЯ УЛУЧШЕНИЙ */
+        /* Стили для улучшений */
         .upgrade-item {
             display: flex;
             align-items: center;
@@ -307,7 +305,7 @@
             opacity: 1;
         }
 
-        /* Убираем синюю подсветку при тапе на всех элементах */
+        /* Убираем синюю подсветку при тапе */
         #settings-btn, 
         .bottom-btn,
         .close-icon,
@@ -322,7 +320,6 @@
             user-select: none;
         }
 
-        /* Для кнопок настроек добавляем активный стиль */
         .setting-row:active,
         .upgrade-item:active {
             transform: scale(0.95);
@@ -344,9 +341,8 @@
     <!-- Кнопка настроек -->
     <img id="settings-btn" src="images/settings_icon.png" alt="⚙️">
     
-    <!-- НОВЫЕ КНОПКИ ВНИЗУ -->
+    <!-- КНОПКИ ВНИЗУ - ТОЛЬКО UPGRADES -->
     <img id="upgrades-btn" src="images/upgrades_icon.png" class="bottom-btn" alt="🛠️">
-    <img id="info-btn" src="images/info_icon.png" class="bottom-btn" alt="ℹ️">
     
     <!-- Модальное окно настроек -->
     <div id="settings-modal" class="modal">
@@ -365,7 +361,7 @@
         </div>
     </div>
 
-    <!-- ОБНОВЛЁННОЕ: Модальное окно улучшений -->
+    <!-- Модальное окно улучшений -->
     <div id="upgrades-modal" class="modal">
         <!-- ПОЛНОЭКРАННЫЙ БЕКГРАУНД -->
         <div id="upgrades-fullscreen-bg"></div>
@@ -373,7 +369,7 @@
         <div id="upgrades-window" class="modal-window">
             <img id="close-upgrades" src="images/close_icon.png" class="close-icon" alt="✕">
             
-            <!-- УПРОЩЁННАЯ карточка повара -->
+            <!-- Карточка повара -->
             <div class="upgrade-item" data-id="chef">
                 <img src="images/chef_upgrade.png" class="upgrade-icon" alt="👨‍🍳">
                 <div class="upgrade-info">
@@ -384,7 +380,7 @@
             </div>
         </div>
         
-        <!-- ВЫНЕСЕННАЯ info-секция -->
+        <!-- INFO-СЕКЦИЯ - ТЕПЕРЬ ТОЛЬКО ЗДЕСЬ -->
         <div class="info-section">
             <img id="upgrade-info-btn" src="images/info_icon.png" class="info-btn" alt="ℹ️">
             <div id="upgrade-details" class="info-text" style="display: none;"></div>
@@ -397,22 +393,19 @@
         let musicEnabled = true;
         let soundsEnabled = true;
         
-        // ПРАВИЛЬНАЯ СТРУКТУРА УЛУЧШЕНИЙ
         let upgrades = {
             chef: { 
-                owned: 0,           // Количество купленных поваров
-                basePrice: 50,      // Базовая цена первого повара
-                production: 4       // Производство одного повара (4 пончика/сек)
+                owned: 0,
+                basePrice: 50,
+                production: 4
             }
         };
         
         let passiveIncome = 0;
-        let lastSaveTime = Date.now(); // ВРЕМЯ ПОСЛЕДНЕГО СОХРАНЕНИЯ
+        let lastSaveTime = Date.now();
         
         const scoreDisplay = document.getElementById("score-text");
         const donut = document.getElementById("donut");
-
-        // КОНСТАНТА для спрайта (оптимизация)
         const DONUT_SPRITE_URL = "url('./images/donut_sprite.png')";
 
         // === ФУНКЦИЯ СБРОСА СОХРАНЕНИЙ ===
@@ -481,7 +474,7 @@
             }
         }
 
-        // === НОВАЯ ФУНКЦИЯ: Информация об улучшениях ===
+        // === ИНФОРМАЦИЯ ОБ УЛУЧШЕНИЯХ ===
         function showUpgradeInfo() {
             const details = document.getElementById('upgrade-details');
             const chef = upgrades.chef;
@@ -508,7 +501,6 @@
                 const offlineTime = currentTime - parseInt(savedTime);
                 const offlineSeconds = Math.floor(offlineTime / 1000);
                 
-                // Максимум 24 часа оффлайна (86400 секунд)
                 const maxOfflineSeconds = 86400;
                 const actualOfflineSeconds = Math.min(offlineSeconds, maxOfflineSeconds);
                 
@@ -518,8 +510,6 @@
                         score += offlineDonuts;
                         scoreDisplay.textContent = formatNumber(score);
                         saveProgress();
-                        
-                        // Показываем уведомление в консоли
                         console.log(`🕒 Оффлайн-прогресс: +${formatNumber(offlineDonuts)} пончиков за ${formatTime(actualOfflineSeconds)}`);
                     }
                 }
@@ -551,8 +541,6 @@
             
             loadUpgrades();
             updateSettingsIcons();
-            
-            // ВЫЗЫВАЕМ ОФФЛАЙН-ПРОГРЕСС ПОСЛЕ ЗАГРУЗКИ ВСЕХ ДАННЫХ
             calculateOfflineProgress();
         }
 
@@ -690,7 +678,6 @@
 
         document.getElementById('close-upgrades').addEventListener('click', () => {
             document.getElementById('upgrades-modal').style.display = 'none';
-            // Скрываем информацию при закрытии меню
             document.getElementById('upgrade-details').style.display = 'none';
         });
 
@@ -698,7 +685,7 @@
             buyUpgrade('chef');
         });
 
-        // НОВЫЙ ОБРАБОТЧИК: Кнопка информации в меню улучшений
+        // Info-кнопка в меню улучшений
         document.getElementById('upgrade-info-btn').addEventListener('click', showUpgradeInfo);
 
         // СОХРАНЕНИЕ ПРИ ЗАКРЫТИИ СТРАНИЦЫ
@@ -712,4 +699,4 @@
         setInterval(updatePassiveIncome, 1000);
     </script>
 </body>
-        </html>
+    </html>
