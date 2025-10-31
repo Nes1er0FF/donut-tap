@@ -118,27 +118,32 @@
             height: 200px;
         }
         
-        #upgrades-window {
-            background: none !important;
-            width: 280px;
-            min-height: 250px;
-            max-height: 70vh;
-            overflow-y: auto;
-            position: relative;
-            z-index: 2001;
-        }
-        
-        /* ПОЛНОЭКРАННЫЙ БЕКГРАУНД ДЛЯ УЛУЧШЕНИЙ */
-        #upgrades-fullscreen-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 90%;
-            height: 90%;
-            background: url('images/upgrades_background.png') center/cover no-repeat;
-            image-rendering: pixelated;
-            z-index: 1999;
-        }
+        /* Уменьшаем ТОЛЬКО бекграунд, контент остаётся прежним */
+#upgrades-fullscreen-bg {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 340px;    /* Фиксированная ширина */
+    height: 500px;   /* Фиксированная высота */
+    background: url('images/upgrades_background.png') center/contain no-repeat;
+    image-rendering: pixelated;
+    z-index: 1999;
+}
+
+/* Окно с контентом - ТОЧНО ТАКОГО ЖЕ РАЗМЕРА */
+#upgrades-window {
+    background: none !important;
+    width: 340px;    /* Совпадает с бекграундом */
+    min-height: 500px;
+    position: relative;
+    z-index: 2001;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+       }
+    
         
         /* Делаем затемнение модалки менее тёмным */
         #upgrades-modal.modal {
