@@ -132,11 +132,16 @@
         /* ПОЛНОЭКРАННЫЙ БЕКГРАУНД ДЛЯ УЛУЧШЕНИЙ */
         #upgrades-fullscreen-bg {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 90%;
-            height: 90%;
-            background: url('images/upgrades_background.png') center/contain no-repeat; /* МЕНЯЕМ cover НА contain */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            min-width: 300px;    /* Минимальный размер */
+            max-width: 90vw;     /* Максимум 90% ширины экрана */
+            min-height: 400px;
+            max-height: 80vh;    /* Максимум 80% высоты экрана */
+            width: 80vw;         /* Стартовая ширина 80% от экрана */
+            height: 70vh;        /* Стартовая высота 70% от экрана */
+            background: url('images/upgrades_background.png') center/100% 100% no-repeat;
             image-rendering: pixelated;
             z-index: 1999;
         }
