@@ -67,22 +67,7 @@
             z-index: 1000;
             image-rendering: pixelated;
         }
-        /* Стили для кнопки сброса в настройках */
-        #reset-setting {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin: 20px 0;
-            color: white;
-            font-size: 20px;
-           cursor: pointer;
-           image-rendering: pixelated;
-        }
-
-        /* Убираем старую кнопку с главного экрана */
-        #reset-btn {
-            display: none;
-        }
+        
         /* НОВЫЕ КНОПКИ ВНИЗУ - УБИРАЕМ INFO ОТСЮДА */
         .bottom-btn {
             position: fixed;
@@ -141,16 +126,16 @@
             overflow-y: auto;
             position: relative;
             z-index: 2001;
+            margin-top: 20px;
         }
         
-        /* ПОЛНОЭКРАННЫЙ БЕКГРАУНД ДЛЯ УЛУЧШЕНИЙ */
         /* ПОЛНОЭКРАННЫЙ БЕКГРАУНД ДЛЯ УЛУЧШЕНИЙ */
         #upgrades-fullscreen-bg {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 550px;   /* ФИКСИРОВАННАЯ ШИРИНА */
+            width: 550px;
             height: 600px;
             background: url('images/upgrades_background.png') center/100% 100% no-repeat;
             image-rendering: pixelated;
@@ -229,14 +214,12 @@
             image-rendering: pixelated;
         }
 
-        
-        
         /* Стили для улучшений */
         .upgrade-item {
             display: flex;
             align-items: center;
             padding: 8px;
-            margin: 4px 0;
+            margin: 8px 0;
             background: rgba(255,255,255,0.15);
             border: 2px solid rgba(255,255,255,0.3);
             border-radius: 6px;
@@ -244,7 +227,8 @@
             width: 95%;
             box-sizing: border-box;
             transition: all 0.2s ease;
-            margin-top: -350px
+            position: relative;
+            z-index: 2002;
         }
 
         .upgrade-item:hover {
@@ -293,6 +277,12 @@
             flex-shrink: 0;
             margin-left: 10px;
             font-weight: bold;
+        }
+
+        /* Контейнер списка улучшений */
+        #upgrades-list {
+            width: 100%;
+            margin-top: 40px;
         }
 
         /* Анимации */
@@ -379,9 +369,6 @@
             <div class="setting-row" id="sound-setting">
                 <img id="sound-icon" src="images/sound_on.png" class="setting-icon" alt="🔊">
                 <span>Звуки</span>
-            <div class="setting-row" id="reset-setting">
-                <img src="images/reset_button.png" class="setting-icon" alt="🔄">
-                <span>Сбросить прогресс</span>
             </div>
         </div>
     </div>
@@ -394,14 +381,17 @@
         <div id="upgrades-window" class="modal-window">
             <img id="close-upgrades" src="images/close_icon.png" class="close-icon" alt="✕">
             
-            <!-- Карточка повара -->
-            <div class="upgrade-item" data-id="chef">
-                <img src="images/chef_upgrade.png" class="upgrade-icon" alt="👨‍🍳">
-                <div class="upgrade-info">
-                    <div class="upgrade-title">Повар</div>
-                    <div class="upgrade-price">Цена: 50 пончиков</div>
+            <!-- Контейнер для списка улучшений -->
+            <div id="upgrades-list">
+                <!-- Карточка повара -->
+                <div class="upgrade-item" data-id="chef">
+                    <img src="images/chef_upgrade.png" class="upgrade-icon" alt="👨‍🍳">
+                    <div class="upgrade-info">
+                        <div class="upgrade-title">Повар</div>
+                        <div class="upgrade-price">Цена: 50 пончиков</div>
+                    </div>
+                    <div class="upgrade-status">0</div>
                 </div>
-                <div class="upgrade-status">0</div>
             </div>
         </div>
         
@@ -718,16 +708,10 @@
             saveProgress();
         });
 
-        // Обработчик для новой кнопки сброса в настройках
-        document.getElementById('reset-setting').addEventListener('click', function() {
-    if(confirm('Вы точно хотите сбросить весь прогресс? Это нельзя отменить!')) {
-        clearSave();
-           }
-        });
         // === ЗАПУСК ИГРЫ ===
         donut.addEventListener("click", tap);
         loadSave();
         setInterval(updatePassiveIncome, 1000);
     </script>
 </body>
-                </html>
+        </html>
