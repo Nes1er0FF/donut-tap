@@ -214,6 +214,17 @@
             image-rendering: pixelated;
         }
 
+        #reset-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            z-index: 3000;
+            image-rendering: pixelated;
+        }
+        
         /* Стили для улучшений */
         .upgrade-item {
             display: flex;
@@ -332,8 +343,8 @@
     </style>
 </head>
 <body>
-    <!-- Временная кнопка сброса -->
-    <button id="reset-btn" onclick="clearSave()">СБРОС СОХРАНЕНИЙ</button>
+    <!-- Кнопка сброса -->
+    <img id="reset-btn" src="images/reset_button.png" onclick="clearSave()">
     
     <div id="score">
         <img id="donut-icon" src="images/mini_donut.png" alt="🍩">
