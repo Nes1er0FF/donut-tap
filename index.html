@@ -40,20 +40,20 @@
             touch-action: manipulation;
         }
         
-        /* Временная кнопка сброса */
+        /* Кнопка сброса */
         #reset-btn {
             position: fixed;
             top: 20px;
             left: 20px;
-            z-index: 3000;
-            padding: 8px 12px;
-            background: #ff4444;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-family: monospace;
-            font-size: 12px;
+            width: 60px;
+            height: 60px;
             cursor: pointer;
+            z-index: 3000;
+            image-rendering: pixelated;
+            border: none;
+            background: none;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
         }
         
         /* Стили настроек */
@@ -214,16 +214,7 @@
             image-rendering: pixelated;
         }
 
-        #reset-btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            width: 50px;
-            height: 50px;
-            cursor: pointer;
-            z-index: 3000;
-            image-rendering: pixelated;
-        }
+        
         
         /* Стили для улучшений */
         .upgrade-item {
