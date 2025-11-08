@@ -425,13 +425,37 @@
 
         // === ФУНКЦИЯ СБРОСА СОХРАНЕНИЙ ===
         function clearSave() {
-            localStorage.removeItem("donutTap_score");
-            localStorage.removeItem("donutTap_upgrades");
-            localStorage.removeItem("donutTap_music");
-            localStorage.removeItem("donutTap_sounds");
-            localStorage.removeItem("donutTap_lastSaveTime");
-            alert("Сохранения очищены! Страница перезагрузится.");
-            location.reload();
+        // 1. Сбрасываем баланс
+        score = 0;
+        document.getElementById("score-text").textContent = "0";
+  
+        // 2. Сбрасываем улучшения
+        upgrades.chef.owned = 0;
+        passiveIncome = 0;
+  
+        // 3. Чистим локальное хранилище
+        localStorage.removeItem("donutTap_score");
+        localStorage.removeItem("donutTap_upgrades");
+        localStorage.removeItem("donutTap_lastSaveTime");
+        localStorage.removeItem("donutTap_music");
+        localStorage.removeItem("donutTap_sounds");
+  
+        // 4. Обновляем отображение
+        updateUpgradesDisplay();
+        calculatePassiveIncome();
+  
+        // 5. Сбрасываем настройки звука к дефолтным
+        musicEnabled = true;
+        soundsEnabled = true;
+        updateSettingsIcons();
+  
+        // 6. Уведомляем игрока
+        alert("Прогресс полностью сброшен! Страница перезагрузится.");
+  
+        // 7. Перезагружаем страницу (опционально)
+        setTimeout(() => {
+        location.reload();
+         }, 1000);
         }
 
         // === ФУНКЦИИ ФОРМАТИРОВАНИЯ ===
