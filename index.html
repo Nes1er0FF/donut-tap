@@ -370,6 +370,10 @@
                 <img id="sound-icon" src="images/sound_on.png" class="setting-icon" alt="🔊">
                 <span>Звуки</span>
             </div>
+            <div class="setting-row" id="reset-setting">
+                <img src="images/reset_icon.png" class="setting-icon" alt="🔄">
+                <span>Сбросить прогресс</span>
+            </div>
         </div>
     </div>
 
@@ -708,7 +712,11 @@
             saveSettings();
             updateSettingsIcons();
         });
-
+        document.getElementById('reset-setting').addEventListener('click', function() {
+            if(confirm("Точно сбросить весь прогресс? Это нельзя отменить!")) {
+                clearSave();
+            }
+        });
         // Улучшения
         document.getElementById('upgrades-btn').addEventListener('click', () => {
             document.getElementById('upgrades-modal').style.display = 'block';
