@@ -146,7 +146,19 @@
         #upgrades-modal.modal {
             background: rgba(0, 0, 0, 0.5);
         }
-        
+
+        /*новый блок кнопки reset в настройках*/
+        #reset-container {
+            margin-top: 20px; /* Начальная позиция */
+            text-align: center;
+        }
+
+        #reset-btn-settings {
+            width: 100px;
+            height: 100px;
+            cursor: pointer;
+            image-rendering: pixelated;
+        }
         /* Секция с информацией - ТОЛЬКО ДЛЯ УЛУЧШЕНИЙ */
         .info-section {
             position: fixed;
@@ -370,9 +382,10 @@
                 <img id="sound-icon" src="images/sound_on.png" class="setting-icon" alt="🔊">
                 <span>Звуки</span>
             </div>
-            <div class="setting-row" id="reset-setting">
-                <img src="images/reset_button.png" class="setting-icon" alt="🔄">
-            </div>
+            <!-- ЗАМЕНЯЕМ старый reset-setting на новый блок -->
+            <div id="reset-container">
+                 <img id="reset-btn-settings" src="images/reset_button.png" alt="🔄 Сброс">
+             </div>
         </div>
     </div>
 
@@ -717,8 +730,8 @@
             saveSettings();
             updateSettingsIcons();
         });
-        // ДОБАВЬ ЭТОТ ОБРАБОТЧИК
-        document.getElementById('reset-setting').addEventListener('click', fullReset);
+        // Кнопка reset
+        document.getElementById('reset-btn-settings').addEventListener('click', fullReset);
             
                
         // Улучшения
