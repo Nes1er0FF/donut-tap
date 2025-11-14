@@ -305,7 +305,16 @@
         .upgrade-item[data-id="chef"] {
             transform: translateX(8px) translateY(-180px) scale(0.95) !important; 
         }
-        
+        /* кнопка улучшений в маркете*/
+        .upgrades-action-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+        }
+      
         /* Контейнер списка улучшений */
         #upgrades-list {
             width: 100%;
@@ -400,9 +409,13 @@
             <!-- ЗАМЕНЯЕМ старый reset-setting на новый блок -->
             <div id="reset-container">
                  <img id="reset-btn-settings" src="images/reset_button.png" alt="🔄 Сброс">
-             </div>
-        </div>
+            </div>
+            <!-- кнопка переключения на улучшение в магазине -->
+                 <img id="open-upgrades-btn" src="images/upgrade_button.png" class="upgrades-action-btn" alt="➡️">
+              </div>
+         </div>   
     </div>
+    
 
     <!-- Модальное окно улучшений -->
     <div id="upgrades-modal" class="modal">
@@ -764,7 +777,13 @@
             buyUpgrade('chef');
         });
 
-        // Info-кнопка в меню улучшений
+        // КНОПКА UPGRADE в маркете
+        document.getElementById('open-upgrades-btn').addEventListener('click', function() {
+        // Переключение на слой улучшений
+            showUpgradesLayer();
+        });
+      
+        // INFO-КНОПКА в меню улучшений
         document.getElementById('upgrade-info-btn').addEventListener('click', showUpgradeInfo);
 
         // СОХРАНЕНИЕ ПРИ ЗАКРЫТИИ СТРАНИЦЫ
