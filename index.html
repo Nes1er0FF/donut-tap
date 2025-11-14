@@ -314,7 +314,29 @@
             height: 60px;
             cursor: pointer;
         }
-      
+        /* Стили для нового слоя улучшений */
+        .upgrades-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2002;
+        }
+
+        .upgrades-layer.active {
+            display: flex;
+        }
+
+        .upgrades-content {
+            text-align: center;
+            padding: 20px;
+        }
+        
         /* Контейнер списка улучшений */
         #upgrades-list {
             width: 100%;
@@ -433,9 +455,23 @@
                     </div>
                     <div class="upgrade-status">0</div>
                 </div>
-               <!-- кнопка переключения на улучшение в магазине -->
-                 <img id="open-upgrades-btn" src="images/upgrade_button.png" class="upgrades-action-btn" alt="➡️">
-             </div>
+               <!-- КНОПКА ПЕРЕКЛЮЧЕНИЯ НА УЛУЧШЕНИЯ В МАГАЗИНЕ -->
+               <img id="open-upgrades-btn" src="images/upgrade_button.png" class="upgrades-action-btn" alt="➡️">
+               </div> <!-- ЗАКРЫВАЕТ upgrades-list -->
+
+               <!-- ⭐⭐ НОВЫЙ СЛОЙ ДЛЯ УЛУЧШЕНИЙ КАРТОЧЕК ⭐⭐ -->
+               <div id="card-upgrades-layer" class="upgrades-layer">
+                   <div class="upgrades-content">
+                       <h3 style="color: white; margin-bottom: 20px;">Улучшения карточек</h3>
+                       <p style="color: white;">Здесь будут улучшения для каждой карточки</p>
+        
+                       <!-- Контент улучшений будет здесь -->
+        
+                       <button class="back-btn" style="margin-top: 30px; padding: 10px 20px; background: rgba(255,255,255,0.2); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer;">
+                           ← Назад к маркету
+                       </button>
+                   </div>
+               </div>
           
         
         <!-- Info-секция - ТЕПЕРЬ ТОЛЬКО ЗДЕСЬ -->
@@ -778,8 +814,17 @@
 
         // КНОПКА UPGRADE в маркете
         document.getElementById('open-upgrades-btn').addEventListener('click', function() {
-        // Переключение на слой улучшений
-            showUpgradesLayer();
+            // Скрываем текущее окно и показываем слой улучшений
+            document.getElementById('upgrades-window').style.display = 'none';
+            document.getElementById('card-upgrades-layer').style.display = 'flex';
+        });
+
+        // КНОПКА НАЗАД в слое улучшений
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('back-btn')) {
+                document.getElementById('upgrades-window').style.display = 'flex';
+                document.getElementById('card-upgrades-layer').style.display = 'none';
+            }
         });
       
         // INFO-КНОПКА в меню улучшений
