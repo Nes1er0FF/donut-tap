@@ -813,10 +813,23 @@
         });
 
         // КНОПКА UPGRADE в маркете
+        // Вместо полного скрытия окна маркета
         document.getElementById('open-upgrades-btn').addEventListener('click', function() {
-            // Скрываем текущее окно и показываем слой улучшений
-            document.getElementById('upgrades-window').style.display = 'none';
-            document.getElementById('card-upgrades-layer').style.display = 'flex';
+        // ПЕРЕКЛЮЧАЕМ СЛОЙ, НО НЕ СКРЫВАЕМ КНОПКУ
+        document.getElementById('upgrades-window').style.display = 'none';
+        document.getElementById('card-upgrades-layer').style.display = 'flex';
+    
+        // Кнопка остается на своем месте - ничего с ней не делаем!
+        });
+
+        // Обратно - из улучшений в маркет
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('back-btn')) {
+                document.getElementById('upgrades-window').style.display = 'flex';
+                document.getElementById('card-upgrades-layer').style.display = 'none';
+        
+       // Кнопка уже на месте - ничего не меняем
+            }
         });
 
         // КНОПКА НАЗАД в слое улучшений
