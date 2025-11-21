@@ -314,33 +314,31 @@
             height: 60px;
             cursor: pointer;
         }
-        /* Стили для нового слоя улучшений */
-        .upgrades-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 2002;
-        }
-
-        .upgrades-layer.active {
-            display: flex;
-        }
-
-        .upgrades-content {
-            text-align: center;
-            padding: 20px;
-        }
-        
+      
         /* Контейнер списка улучшений */
         #upgrades-list {
             width: 100%;
             margin-top: 40px;
+        }
+
+        /* СТИЛИ ДЛЯ МАРКЕТА КАРТОЧЕК */
+        #card-upgrades-layer {
+            width: 100%;
+            margin-top: 40px;
+            color: white;
+            text-align: center;
+        }
+
+        .market-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #ffd700;
+        }
+
+        .coming-soon {
+            font-size: 18px;
+            opacity: 0.8;
+            margin-top: 50px;
         }
 
         /* Анимации */
@@ -398,7 +396,7 @@
 </head>
 <body>
     <!-- Кнопка сброса -->
-    
+    <img id="reset-btn" src="images/reset_button.png" alt="🔄">
     
     <div id="score">
         <img id="donut-icon" src="images/mini_donut.png" alt="🍩">
@@ -444,7 +442,7 @@
         <div id="upgrades-window" class="modal-window">
             <img id="close-upgrades" src="images/close_icon.png" class="close-icon" alt="✕">
             
-            <!-- Контейнер для списка улучшений -->
+            <!-- СЛОЙ 1: УЛУЧШЕНИЯ (изначально видим) -->
             <div id="upgrades-list">
                 <!-- Карточка повара -->
                 <div class="upgrade-item" data-id="chef">
@@ -455,24 +453,17 @@
                     </div>
                     <div class="upgrade-status">0</div>
                 </div>
-               <!-- КНОПКА ПЕРЕКЛЮЧЕНИЯ НА УЛУЧШЕНИЯ В МАГАЗИНЕ -->
-               <img id="open-upgrades-btn" src="images/upgrade_button.png" class="upgrades-action-btn" alt="➡️">
-               </div> <!-- ЗАКРЫВАЕТ upgrades-list -->
-
-               <!-- ⭐⭐ НОВЫЙ СЛОЙ ДЛЯ УЛУЧШЕНИЙ КАРТОЧЕК ⭐⭐ -->
-               <div id="card-upgrades-layer" class="upgrades-layer">
-                   <div class="upgrades-content">
-                       <h3 style="color: white; margin-bottom: 20px;">Улучшения карточек</h3>
-                       <p style="color: white;">Здесь будут улучшения для каждой карточки</p>
-        
-                       <!-- Контент улучшений будет здесь -->
-        
-                       <button class="back-btn" style="margin-top: 30px; padding: 10px 20px; background: rgba(255,255,255,0.2); color: white; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; cursor: pointer;">
-                           ← Назад к маркету
-                       </button>
-                   </div>
-               </div>
-          
+            </div>
+            
+            <!-- СЛОЙ 2: МАРКЕТ КАРТОЧЕК (изначально скрыт) -->
+            <div id="card-upgrades-layer" style="display: none;">
+                <div class="market-title">🛒 Маркет карточек</div>
+                <div class="coming-soon">Скоро здесь появятся крутые карточки! 🎴</div>
+            </div>
+            
+            <!-- Кнопка переключения между слоями -->
+            <img id="open-upgrades-btn" src="images/upgrade_button.png" class="upgrades-action-btn" alt="➡️">
+        </div>
         
         <!-- Info-секция - ТЕПЕРЬ ТОЛЬКО ЗДЕСЬ -->
         <div class="info-section">
@@ -502,46 +493,64 @@
         const donut = document.getElementById("donut");
         const DONUT_SPRITE_URL = "url('./images/donut_sprite.png')";
 
+        // === СИСТЕМА ПЕРЕКЛЮЧЕНИЯ МЕЖДУ УЛУЧШЕНИЯМИ И МАРКЕТОМ ===
+        document.getElementById('open-upgrades-btn').addEventListener('click', function() {
+            const upgradesList = document.getElementById('upgrades-list');
+            const cardLayer = document.getElementById('card-upgrades-layer');
+            const btn = document.getElementById('open-upgrades-btn');
+            
+            if (upgradesList.style.display !== 'none') {
+                // Переключаем на маркет карточек
+                upgradesList.style.display = 'none';
+                cardLayer.style.display = 'block';
+                btn.src = 'images/back_button.png'; // Меняем иконку на "назад"
+            } else {
+                // Возвращаем к улучшениям
+                upgradesList.style.display = 'block';
+                cardLayer.style.display = 'none';
+                btn.src = 'images/upgrade_button.png'; // Возвращаем иконку улучшений
+            }
+        });
+
         // === ФУНКЦИЯ СБРОСА СОХРАНЕНИЙ ===
         function clearSave() {
-        // 1. Сбрасываем баланс
-        score = 0;
-        document.getElementById("score-text").textContent = "0";
-    
-        // 2. Сбрасываем улучшения
-        upgrades.chef.owned = 0;
-        passiveIncome = 0;
-    
-        // 3. Чистим локальное хранилище
-        localStorage.removeItem("donutTap_score");
-        localStorage.removeItem("donutTap_upgrades");
-        localStorage.removeItem("donutTap_lastSaveTime");
-        localStorage.removeItem("donutTap_music");
-        localStorage.removeItem("donutTap_sounds");
-    
-        // 4. Обновляем отображение
-        updateUpgradesDisplay();
-        calculatePassiveIncome();
-    
-        // 5. Сбрасываем настройки звука к дефолтным
-        musicEnabled = true;
-        soundsEnabled = true;
-        updateSettingsIcons();
-       }
+            // 1. Сбрасываем баланс
+            score = 0;
+            document.getElementById("score-text").textContent = "0";
+        
+            // 2. Сбрасываем улучшения
+            upgrades.chef.owned = 0;
+            passiveIncome = 0;
+        
+            // 3. Чистим локальное хранилище
+            localStorage.removeItem("donutTap_score");
+            localStorage.removeItem("donutTap_upgrades");
+            localStorage.removeItem("donutTap_lastSaveTime");
+            localStorage.removeItem("donutTap_music");
+            localStorage.removeItem("donutTap_sounds");
+        
+            // 4. Обновляем отображение
+            updateUpgradesDisplay();
+            calculatePassiveIncome();
+        
+            // 5. Сбрасываем настройки звука к дефолтным
+            musicEnabled = true;
+            soundsEnabled = true;
+            updateSettingsIcons();
+        }
 
         // === ФУНКЦИЯ ПОЛНОГО СБРОСА С ПЕРЕЗАГРУЗКОЙ ===
         function fullReset() {
-          if(confirm("Вы точно хотите сбросить весь прогресс? Это нельзя отменить!")) {
-        clearSave();
-        // Уведомляем игрока
-        alert("Прогресс полностью сброшен! Страница перезагрузится.");
-        // Перезагружаем страницу
-        setTimeout(() => {
-            location.reload();
-        }, 1000);
-    }
-}
-        
+            if(confirm("Вы точно хотите сбросить весь прогресс? Это нельзя отменить!")) {
+                clearSave();
+                // Уведомляем игрока
+                alert("Прогресс полностью сброшен! Страница перезагрузится.");
+                // Перезагружаем страницу
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            }
+        }
         
         // === ФУНКЦИИ ФОРМАТИРОВАНИЯ ===
         function formatNumber(num) {
@@ -812,34 +821,6 @@
             buyUpgrade('chef');
         });
 
-        // КНОПКА UPGRADE в маркете
-        // Вместо полного скрытия окна маркета
-        document.getElementById('open-upgrades-btn').addEventListener('click', function() {
-        // ПЕРЕКЛЮЧАЕМ СЛОЙ, НО НЕ СКРЫВАЕМ КНОПКУ
-        document.getElementById('upgrades-window').style.display = 'none';
-        document.getElementById('card-upgrades-layer').style.display = 'flex';
-    
-        // Кнопка остается на своем месте - ничего с ней не делаем!
-        });
-
-        // Обратно - из улучшений в маркет
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('back-btn')) {
-                document.getElementById('upgrades-window').style.display = 'flex';
-                document.getElementById('card-upgrades-layer').style.display = 'none';
-        
-       // Кнопка уже на месте - ничего не меняем
-            }
-        });
-
-        // КНОПКА НАЗАД в слое улучшений
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('back-btn')) {
-                document.getElementById('upgrades-window').style.display = 'flex';
-                document.getElementById('card-upgrades-layer').style.display = 'none';
-            }
-        });
-      
         // INFO-КНОПКА в меню улучшений
         document.getElementById('upgrade-info-btn').addEventListener('click', showUpgradeInfo);
 
@@ -854,4 +835,4 @@
         setInterval(updatePassiveIncome, 1000);
     </script>
 </body>
-        </html>
+            </html>
