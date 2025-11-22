@@ -392,6 +392,32 @@
         .upgrade-item:active {
             transform: scale(0.95);
         }
+
+        /* === СИСТЕМА СЛОЕВ === */
+        .game-layer {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1000;
+        }
+
+        /* ГЛАВНЫЙ СЛОЙ (всегда видим) */
+        #main-layer {
+            z-index: 1000;
+        }
+
+        /* СЛОЙ УЛУЧШЕНИЙ */
+        #upgrades-layer {
+            z-index: 2000;
+            display: none; /* Изначально скрыт */
+        }
+
+        /* УБИРАЕМ СТАРЫЕ СТИЛИ МОДАЛОК */
+        #upgrades-modal.modal {
+            display: none; /* Отключаем старый стиль */
+        }
     </style>
 </head>
 <body>
@@ -434,43 +460,43 @@
     </div>
     
 
-    <!-- Модальное окно улучшений -->
-    <div id="upgrades-modal" class="modal">
-        <!-- ПОЛНОЭКРАННЫЙ БЕКГРАУНД -->
-        <div id="upgrades-fullscreen-bg"></div>
+    <!-- НОВЫЙ КОД - СЛОЙ УЛУЧШЕНИЙ -->
+<div id="upgrades-layer" class="game-layer" style="display: none;">
+    <!-- ПОЛНОЭКРАННЫЙ БЕКГРАУНД -->
+    <div id="upgrades-fullscreen-bg"></div>
+    
+    <div id="upgrades-window" class="modal-window">
+        <img id="close-upgrades" src="images/close_icon.png" class="close-icon" alt="✕">
         
-        <div id="upgrades-window" class="modal-window">
-            <img id="close-upgrades" src="images/close_icon.png" class="close-icon" alt="✕">
-            
-            <!-- СЛОЙ 1: УЛУЧШЕНИЯ (изначально видим) -->
-            <div id="upgrades-list">
-                <!-- Карточка повара -->
-                <div class="upgrade-item" data-id="chef">
-                    <img src="images/chef_upgrade.png" class="upgrade-icon" alt="👨‍🍳">
-                    <div class="upgrade-info">
-                        <div class="upgrade-title">Повар</div>
-                        <div class="upgrade-price">Цена: 50 пончиков</div>
-                    </div>
-                    <div class="upgrade-status">0</div>
+        <!-- СЛОЙ 1: УЛУЧШЕНИЯ -->
+        <div id="upgrades-list">
+            <!-- Карточка повара -->
+            <div class="upgrade-item" data-id="chef">
+                <img src="images/chef_upgrade.png" class="upgrade-icon" alt="👨‍🍳">
+                <div class="upgrade-info">
+                    <div class="upgrade-title">Повар</div>
+                    <div class="upgrade-price">Цена: 50 пончиков</div>
                 </div>
+                <div class="upgrade-status">0</div>
             </div>
-            
-            <!-- СЛОЙ 2: МАРКЕТ КАРТОЧЕК (изначально скрыт) -->
-            <div id="card-upgrades-layer" style="display: none;">
-                <div class="market-title">🛒 Маркет карточек</div>
-                <div class="coming-soon">Скоро здесь появятся крутые карточки! 🎴</div>
-            </div>
-            
-            <!-- Кнопка переключения между слоями -->
-            <img id="open-upgrades-btn" src="images/upgrade_button.png" class="upgrades-action-btn" alt="➡️">
         </div>
         
-        <!-- Info-секция - ТЕПЕРЬ ТОЛЬКО ЗДЕСЬ -->
-        <div class="info-section">
-            <img id="upgrade-info-btn" src="images/info_icon.png" class="info-btn" alt="ℹ️">
-            <div id="upgrade-details" class="info-text" style="display: none;"></div>
+        <!-- СЛОЙ 2: МАРКЕТ КАРТОЧЕК -->
+        <div id="card-upgrades-layer" style="display: none;">
+            <div class="market-title">🛒 Маркет карточек</div>
+            <div class="coming-soon">Скоро здесь появятся крутые карточки! 🎴</div>
         </div>
+        
+        <!-- Кнопка переключения -->
+        <img id="open-upgrades-btn" src="images/upgrade_button.png" class="upgrades-action-btn" alt="➡️">
     </div>
+    
+    <!-- Info-секция -->
+    <div class="info-section">
+        <img id="upgrade-info-btn" src="images/info_icon.png" class="info-btn" alt="ℹ️">
+        <div id="upgrade-details" class="info-text" style="display: none;"></div>
+    </div>
+</div>
     
     <script>
         // === КОНСТАНТЫ И ПЕРЕМЕННЫЕ ===
@@ -806,16 +832,27 @@
         document.getElementById('reset-btn-settings').addEventListener('click', fullReset);
             
                
-        // Улучшения
-        document.getElementById('upgrades-btn').addEventListener('click', () => {
-            document.getElementById('upgrades-modal').style.display = 'block';
+        // === СИСТЕМА УПРАВЛЕНИЯ СЛОЯМИ ===
+
+        // Показать слой улучшений
+        document.getElementById('upgrades-btn').addEventListener('click', function() {
+            document.getElementById('upgrades-layer').style.display = 'block';
             updateUpgradesDisplay();
         });
 
-        document.getElementById('close-upgrades').addEventListener('click', () => {
-            document.getElementById('upgrades-modal').style.display = 'none';
+        
+        
+        // Закрыть слой улучшений
+        document.getElementById('close-upgrades').addEventListener('click', function() {
+            document.getElementById('upgrades-layer').style.display = 'none';
             document.getElementById('upgrade-details').style.display = 'none';
         });
+
+        // Показать главный слой (основной экран)
+        function showMainLayer() {
+            document.getElementById('upgrades-layer').style.display = 'none';
+            document.getElementById('settings-modal').style.display = 'none';
+        }
 
         document.querySelector('[data-id="chef"]').addEventListener('click', function() {
             buyUpgrade('chef');
