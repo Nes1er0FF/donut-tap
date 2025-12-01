@@ -471,6 +471,13 @@
                 <img id="sound-icon" src="images/sound_on.png" class="setting-icon" alt="🔊">
                 <span>Звуки</span>
             </div>
+      
+            <div class="setting-row" id="player-id-setting">
+                <img src="images/id_icon.png" class="setting-icon" alt="🆔">
+                <span>ID игрока: <span id="player-id-display">Загрузка...</span></span>
+                <button id="copy-id-btn" style="margin-left: 10px; padding: 5px 10px; font-size: 12px;">Копировать</button>
+            </div>
+            
             <!-- ЗАМЕНЯЕМ старый reset-setting на новый блок -->
             <div id="reset-container">
                  <img id="reset-btn-settings" src="images/reset_button.png" alt="🔄 Сброс">
@@ -709,6 +716,8 @@
             if (savedScore) {
                 score = parseInt(savedScore);
                 scoreDisplay.textContent = formatNumber(score);
+            displayPlayerID();
+            setupIDCopyButton();
             }
             
             const savedMusic = localStorage.getItem("donutTap_music");
@@ -823,8 +832,63 @@
             
             createParticle(event.clientX, event.clientY);
             playTapSound();
-        }
+       }
 
+       // === СИСТЕМА ID ИГРОКА ===
+
+       // Генерация ID
+       function generatePlayerID() {
+           const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+           let result = 'DT_';
+           for (let i = 0; i < 8; i++) {
+               result += chars.charAt(Math.floor(Math.random() * chars.length));
+           }
+           return result;
+       }
+
+       // Загрузка или создание ID
+       function getPlayerID() {
+           let playerID = localStorage.getItem('donutTap_playerID');
+    
+           if (!playerID) {
+               playerID = generatePlayerID();
+               localStorage.setItem('donutTap_playerID', playerID);
+               console.log('🆔 Создан новый ID игрока:', playerID);
+           }
+    
+           return playerID;
+       }
+
+       // Отображение ID в настройках
+       function displayPlayerID() {
+           const playerID = getPlayerID();
+           const displayElement = document.getElementById('player-id-display');
+    
+           if (displayElement) {
+               displayElement.textContent = playerID;
+           }
+       }
+
+       // Копирование ID в буфер обмена
+       function setupIDCopyButton() {
+           const copyButton = document.getElementById('copy-id-btn');
+           if (copyButton) {
+               copyButton.addEventListener('click', function() {
+                   const playerID = getPlayerID();
+                   navigator.clipboard.writeText(playerID)
+                       .then(() => {
+                           copyButton.textContent = 'Скопировано!';
+                           setTimeout(() => {
+                               copyButton.textContent = 'Копировать';
+                           }, 2000);
+                       })
+                       .catch(err => {
+                           console.error('Ошибка копирования:', err);
+                       });
+               });
+           }
+       }
+        
         // === ОБРАБОТЧИКИ СОБЫТИЙ ===
         
         // Настройки
