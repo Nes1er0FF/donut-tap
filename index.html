@@ -438,7 +438,6 @@
         }
 
         /* Стили для ID игрока */
-/* Стили для кликабельного ID - УПРОЩЕННАЯ ВЕРСИЯ */
 #player-id-setting {
     margin-top: 10px;
     padding: 15px 0; /* Только вертикальные отступы */
@@ -458,21 +457,19 @@
     cursor: pointer;
     transition: all 0.2s ease;
     user-select: none;
-    background: none; /* Убираем градиентный фон */
-    border: none; /* Убираем обводку */
-    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); /* Только легкое свечение */
+    background: none; /* Без фона */
+    border: none; /* Без обводки */
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); /* Легкое свечение */
 }
 
-/* Эффект при наведении - легкое затемнение фона */
+/* Эффект при наведении - только свечение */
 .clickable-id:hover {
-    background: rgba(255, 255, 255, 0.1); /* Легкий полупрозрачный фон */
     transform: translateY(-1px);
-    text-shadow: 0 0 15px rgba(255, 215, 0, 0.7); /* Усиливаем свечение */
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.8); /* Усиливаем свечение */
 }
 
 .clickable-id:active {
     transform: translateY(0);
-    background: rgba(255, 255, 255, 0.05);
 }
 
 /* Анимация при копировании - только изменение цвета */
@@ -495,24 +492,13 @@
     animation: copyFlash 0.8s ease;
 }
 
-/* Убираем тултип - он тоже лишний для минимализма */
+/* Убираем ВСЕ подсказки */
 .clickable-id::after {
     display: none;
 }
 
-/* Вместо тултипа можно добавить легкую подсказку при первом запуске */
 #player-id-setting::before {
-    content: 'Нажмите чтобы скопировать';
-    display: block;
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.6);
-    margin-bottom: 5px;
-    opacity: 0.8;
-}
-
-/* Скрываем подсказку после первого копирования */
-#player-id-setting.hint-hidden::before {
-    display: none;
+    display: none; /* Убираем подсказку полностью */
 }
         
     </style>
@@ -961,17 +947,11 @@
 function copyIDOnClick() {
     const playerID = getPlayerID();
     const displayElement = document.getElementById('player-id-display');
-    const idSetting = document.getElementById('player-id-setting');
     
     navigator.clipboard.writeText(playerID).then(() => {
         console.log('📋 ID скопирован:', playerID);
         
-        // Убираем подсказку после первого копирования
-        if (idSetting && !idSetting.classList.contains('hint-hidden')) {
-            idSetting.classList.add('hint-hidden');
-        }
-        
-        // Анимация подтверждения
+        // Простая анимация подтверждения
         if (displayElement) {
             displayElement.classList.add('copied-animation');
             
@@ -987,7 +967,7 @@ function copyIDOnClick() {
     }).catch(err => {
         console.log('❌ Ошибка копирования:', err);
         
-        // Fallback
+        // Fallback для старых браузеров
         const textArea = document.createElement('textarea');
         textArea.value = playerID;
         document.body.appendChild(textArea);
