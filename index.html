@@ -301,7 +301,7 @@
             margin-left: 10px;
             font-weight: bold;
         }
-        /* СДВИГАЕМ ВСЮ КАРТОЧКУ ПОВАРА ВПРАВО */
+        /* СДВИГАЕМ ВСЮ КАРТОЧКУ ПОВАРА В ПРАВО */
         .upgrade-item[data-id="chef"] {
             transform: translateX(8px) translateY(-200px) scale(0.95) !important; 
         }
@@ -525,6 +525,16 @@
 </div>
     
     <script>
+    // === ОТЛАДКА ===
+    console.log('=== DONUT TAP DEBUG ===');
+    console.log('Версия: 0.8');
+    console.log('localStorage доступен:', typeof localStorage !== 'undefined');
+    console.log('Текущий ID:', localStorage.getItem('donutTap_playerID'));
+    
+    // === ОСНОВНОЙ КОД ===
+    let score = 0;
+    let musicEnabled = true;
+        
         // === КОНСТАНТЫ И ПЕРЕМЕННЫЕ ===
         let score = 0;
         let musicEnabled = true;
@@ -712,25 +722,33 @@
 
         // === СИСТЕМА СОХРАНЕНИЯ ===
         function loadSave() {
+            // 1. загружаем счёт
             const savedScore = localStorage.getItem("donutTap_score");
             if (savedScore) {
-                score = parseInt(savedScore);
+                score = parseInt(savedScore) 
                 scoreDisplay.textContent = formatNumber(score);
+        }
+            // 2. показываем ID
             displayPlayerID();
             setupIDCopyButton();
-            }
-            
-            const savedMusic = localStorage.getItem("donutTap_music");
-            const savedSounds = localStorage.getItem("donutTap_sounds");
-            
-            if (savedMusic !== null) musicEnabled = savedMusic === 'true';
-            if (savedSounds !== null) soundsEnabled = savedSounds === 'true';
-            
-            loadUpgrades();
-            updateSettingsIcons();
-            calculateOfflineProgress();
-        }
 
+            // 3. загружаем настройки звука
+            const savedMusic = localStorage.getItem ("donutTap_music");
+            const savedSounds = localStoreg.getItem ("donutTap_sonds");
+
+            // 4. если настройки сохранены - загружаем, иначеставим true
+            musicEnabled = savedMusic !== null ? savedMusic === 'true' : true;
+            soundsEnabled = savedSounds !== null ? savedSounds === 'true' : true;
+            updateSettingsIcons();
+
+            // 5. загружаем улучшения 
+            loadUpgrades();
+
+            // 6. рассчитываем оффлайн-прогресс
+            calculateOfflineProgress();
+
+         }
+       
         function saveProgress() {
             localStorage.setItem("donutTap_score", score.toString());
             localStorage.setItem("donutTap_lastSaveTime", Date.now().toString());
@@ -838,36 +856,74 @@
 
        // Генерация ID
        function generatePlayerID() {
-           const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-           let result = 'DT_';
-           for (let i = 0; i < 8; i++) {
-               result += chars.charAt(Math.floor(Math.random() * chars.length));
-           }
-           return result;
-       }
+    try {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let result = 'DT_';
+        
+        // Добавляем timestamp для уникальности
+        const timestamp = Date.now().toString().slice(-4);
+        
+        for (let i = 0; i < 4; i++) { // Уменьшили до 4 символов + timestamp
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        
+        result += timestamp;
+        console.log('✨ Сгенерирован ID:', result);
+        return result;
+    } catch (error) {
+        // Резервный вариант
+        return 'DT_' + Math.random().toString(36).substr(2, 8).toUpperCase();
+    }
+}
 
        // Загрузка или создание ID
        function getPlayerID() {
-           let playerID = localStorage.getItem('donutTap_playerID');
-    
-           if (!playerID) {
-               playerID = generatePlayerID();
-               localStorage.setItem('donutTap_playerID', playerID);
-               console.log('🆔 Создан новый ID игрока:', playerID);
-           }
-    
-           return playerID;
-       }
+    try {
+        // Проверяем, есть ли уже ID в localStorage
+        let playerID = localStorage.getItem('donutTap_playerID');
+        
+        // Если ID нет или он некорректный - создаем новый
+        if (!playerID || playerID.length < 5) {
+            console.log('🆔 Создаем новый ID игрока...');
+            playerID = generatePlayerID();
+            localStorage.setItem('donutTap_playerID', playerID);
+        }
+        
+        // Дополнительная проверка формата
+        if (!playerID.startsWith('DT_')) {
+            console.log('⚠️ Исправляем старый формат ID...');
+            playerID = generatePlayerID();
+            localStorage.setItem('donutTap_playerID', playerID);
+        }
+        
+        return playerID;
+    } catch (error) {
+        console.log('❌ Ошибка при получении ID:', error);
+        // Возвращаем дефолтный ID на случай ошибки
+        return 'DT_GUEST001';
+    }
+}
 
        // Отображение ID в настройках
        function displayPlayerID() {
-           const playerID = getPlayerID();
-           const displayElement = document.getElementById('player-id-display');
-    
-           if (displayElement) {
-               displayElement.textContent = playerID;
-           }
-       }
+    try {
+        const playerID = getPlayerID();
+        const displayElement = document.getElementById('player-id-display');
+        
+        if (displayElement) {
+            displayElement.textContent = playerID;
+            console.log('✅ ID игрока отображен:', playerID);
+        } else {
+            console.log('❌ Элемент для отображения ID не найден');
+            // Создаем элемент, если его нет (на всякий случай)
+            setTimeout(() => displayPlayerID(), 100);
+        }
+    } catch (error) {
+        console.log('❌ Ошибка при отображении ID:', error);
+        // Пробуем еще раз через секунду
+        setTimeout(() => displayPlayerID(), 1000);
+    }
+}
 
        // Копирование ID в буфер обмена
        function setupIDCopyButton() {
