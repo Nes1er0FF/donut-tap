@@ -438,6 +438,7 @@
         }
 
         /* Стили для ID игрока */
+/* Стили для кликабельного ID */
 #player-id-setting {
     margin-top: 10px;
     padding: 12px;
@@ -445,48 +446,80 @@
     border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.15);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    text-align: center; /* Центрируем ID */
 }
 
-#player-id-display {
+.clickable-id {
     font-family: 'Courier New', monospace;
     font-weight: bold;
-    font-size: 16px;
+    font-size: 18px; /* Увеличим немного */
     color: #FFD700;
     background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6));
-    padding: 6px 12px;
-    border-radius: 6px;
-    border: 1px solid rgba(255, 215, 0, 0.3);
-    text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
-    letter-spacing: 1px;
+    padding: 10px 20px; /* Увеличим отступы для удобства клика */
+    border-radius: 8px;
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+    letter-spacing: 1.5px;
     display: inline-block;
-    margin: 0 8px;
-    min-width: 140px;
+    min-width: 180px;
     text-align: center;
+    cursor: pointer; /* Показываем, что это кликабельно */
+    transition: all 0.2s ease;
+    user-select: none; /* Чтобы не выделялось при клике */
 }
 
-#copy-id-btn {
-    background: linear-gradient(135deg, #4a90e2, #2c6cb0);
-    border: none;
-    color: white;
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-family: monospace;
-    font-size: 13px;
-    font-weight: bold;
-    transition: all 0.2s ease;
+.clickable-id:hover {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7));
+    border-color: rgba(255, 215, 0, 0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.clickable-id:active {
+    transform: translateY(0);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-#copy-id-btn:hover {
-    background: linear-gradient(135deg, #5a9cf0, #3c7cd0);
-    transform: translateY(-1px);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.25);
+/* Анимация при копировании */
+@keyframes copyFlash {
+    0% { 
+        background: linear-gradient(135deg, #4CAF50, #2E7D32);
+        border-color: rgba(76, 175, 80, 0.5);
+    }
+    50% { 
+        transform: scale(1.05);
+    }
+    100% { 
+        background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6));
+        border-color: rgba(255, 215, 0, 0.3);
+        transform: scale(1);
+    }
 }
 
-#copy-id-btn:active {
-    transform: translateY(0);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+.copied-animation {
+    animation: copyFlash 0.6s ease;
+}
+
+/* Тултип (подсказка) */
+.clickable-id::after {
+    content: 'Нажмите чтобы скопировать';
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.clickable-id:hover::after {
+    opacity: 1;
 }
         
     </style>
@@ -525,9 +558,7 @@
             </div>
       
             <div class="setting-row" id="player-id-setting">
-                <img src="images/id_icon.png" class="setting-icon" alt="🆔">
-                <span>ID игрока: <span id="player-id-display">Загрузка...</span></span>
-                <button id="copy-id-btn" style="margin-left: 10px; padding: 5px 10px; font-size: 12px;">Копировать</button>
+                <span id="player-id-display" class="clickable-id">Загрузка...</span>
             </div>
             
             <!-- ЗАМЕНЯЕМ старый reset-setting на новый блок -->
@@ -747,16 +778,17 @@
     }
 
     function loadSave() {
-        console.log('🔄 Загрузка сохранения...');
-        
-        displayPlayerID();
-        setupIDCopyButton();
-        
-        const savedScore = localStorage.getItem("donutTap_score");
-        if (savedScore) {
-            score = parseInt(savedScore);
-            scoreDisplay.textContent = formatNumber(score);
-        }
+    console.log('🔄 Загрузка сохранения...');
+    
+    // 1. ТОЛЬКО показываем ID (копирование уже встроено в клик)
+    displayPlayerID(); // Убрали setupIDCopyButton()
+    
+    // 2. Загружаем счет
+    const savedScore = localStorage.getItem("donutTap_score");
+    if (savedScore) {
+        score = parseInt(savedScore);
+        scoreDisplay.textContent = formatNumber(score);
+    }
         
         const savedMusic = localStorage.getItem("donutTap_music");
         const savedSounds = localStorage.getItem("donutTap_sounds");
@@ -912,65 +944,74 @@
     }
 
     function displayPlayerID() {
-        try {
-            console.log('🔍 Начинаем отображение ID игрока...');
-            const playerID = getPlayerID();
-            const displayElement = document.getElementById('player-id-display');
+    try {
+        console.log('🔍 Начинаем отображение ID игрока...');
+        const playerID = getPlayerID();
+        const displayElement = document.getElementById('player-id-display');
+        
+        if (displayElement) {
+            displayElement.textContent = playerID;
+            displayElement.classList.add('clickable-id');
+            console.log('✅ ID отображен:', playerID);
             
-            if (displayElement) {
-                displayElement.textContent = playerID;
-                console.log('✅ ID отображен:', playerID);
-            } else {
-                console.log('❌ Элемент #player-id-display не найден!');
-                setTimeout(() => {
-                    const retryElement = document.getElementById('player-id-display');
-                    if (retryElement) {
-                        retryElement.textContent = playerID;
-                    }
-                }, 1000);
-            }
-        } catch (error) {
-            console.log('💥 Ошибка при отображении ID:', error);
+            // Добавляем обработчик клика для копирования
+            displayElement.addEventListener('click', copyIDOnClick);
+        } else {
+            console.log('❌ Элемент #player-id-display не найден!');
+            setTimeout(displayPlayerID, 100);
         }
+    } catch (error) {
+        console.log('💥 Ошибка при отображении ID:', error);
     }
+}
 
-    function setupIDCopyButton() {
-        const copyButton = document.getElementById('copy-id-btn');
-        if (!copyButton) {
-            console.log('⚠️ Кнопка копирования не найдена');
-            return;
+function copyIDOnClick() {
+    const playerID = getPlayerID();
+    const displayElement = document.getElementById('player-id-display');
+    
+    navigator.clipboard.writeText(playerID).then(() => {
+        console.log('📋 ID скопирован:', playerID);
+        
+        // Анимация подтверждения
+        if (displayElement) {
+            displayElement.classList.add('copied-animation');
+            
+            // Сохраняем оригинальный текст
+            const originalText = displayElement.textContent;
+            displayElement.textContent = 'Скопировано! ✓';
+            displayElement.style.color = '#4CAF50';
+            
+            // Возвращаем обратно через 1.5 секунды
+            setTimeout(() => {
+                displayElement.textContent = originalText;
+                displayElement.style.color = '#FFD700';
+                displayElement.classList.remove('copied-animation');
+            }, 1500);
         }
         
-        copyButton.addEventListener('click', function() {
-            const playerID = getPlayerID();
-            
-            navigator.clipboard.writeText(playerID).then(() => {
-                console.log('📋 ID скопирован:', playerID);
-                
-                const originalText = copyButton.textContent;
-                copyButton.textContent = 'Скопировано! ✓';
-                copyButton.style.background = '#4CAF50';
-                
-                setTimeout(() => {
-                    copyButton.textContent = originalText;
-                    copyButton.style.background = '';
-                }, 2000);
-                
-            }).catch(err => {
-                console.log('❌ Ошибка копирования:', err);
-                const textArea = document.createElement('textarea');
-                textArea.value = playerID;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                
-                copyButton.textContent = 'Скопировано!';
-                setTimeout(() => copyButton.textContent = 'Копировать', 2000);
-            });
-        });
-    }
-    
+        // Показываем уведомление на мобильных
+        if ('vibrate' in navigator) {
+            navigator.vibrate(50); // Вибрация на мобильных
+        }
+        
+    }).catch(err => {
+        console.log('❌ Ошибка копирования, используем fallback:', err);
+        
+        // Fallback для старых браузеров
+        const textArea = document.createElement('textarea');
+        textArea.value = playerID;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        if (displayElement) {
+            displayElement.textContent = 'Скопировано (fallback)!';
+            setTimeout(() => displayElement.textContent = playerID, 1500);
+        }
+    });
+}
+   
     // === ОБРАБОТЧИКИ СОБЫТИЙ ===
     document.getElementById('settings-btn').addEventListener('click', () => {
         document.getElementById('settings-modal').style.display = 'block';
