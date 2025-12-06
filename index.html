@@ -436,6 +436,58 @@
           -webkit-user-select: none;
           user-select: none;
         }
+
+        /* Стили для ID игрока */
+#player-id-setting {
+    margin-top: 10px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+#player-id-display {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 16px;
+    color: #FFD700;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6));
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+    letter-spacing: 1px;
+    display: inline-block;
+    margin: 0 8px;
+    min-width: 140px;
+    text-align: center;
+}
+
+#copy-id-btn {
+    background: linear-gradient(135deg, #4a90e2, #2c6cb0);
+    border: none;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: monospace;
+    font-size: 13px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+#copy-id-btn:hover {
+    background: linear-gradient(135deg, #5a9cf0, #3c7cd0);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.25);
+}
+
+#copy-id-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
         
     </style>
 </head>
@@ -523,494 +575,449 @@
         <div id="upgrade-details" class="info-text" style="display: none;"></div>
     </div>
 </div>
-    
     <script>
     // === ОТЛАДКА ===
     console.log('=== DONUT TAP DEBUG ===');
-    console.log('Версия: 0.8');
-    console.log('localStorage доступен:', typeof localStorage !== 'undefined');
-    console.log('Текущий ID:', localStorage.getItem('donutTap_playerID'));
+    console.log('🍩 Версия: 0.8');
+    console.log('📦 localStorage доступен:', typeof localStorage !== 'undefined');
+    console.log('👤 Текущий ID в хранилище:', localStorage.getItem('donutTap_playerID'));
     
-    // === ОСНОВНОЙ КОД ===
+    // === КОНСТАНТЫ И ПЕРЕМЕННЫЕ ===
     let score = 0;
     let musicEnabled = true;
-    // ... остальной твой код
-</script>
+    let soundsEnabled = true;
+    
+    let upgrades = {
+        chef: { 
+            owned: 0,
+            basePrice: 50,
+            production: 4
+        }
+    };
+    
+    let passiveIncome = 0;
+    let lastSaveTime = Date.now();
+    
+    const scoreDisplay = document.getElementById("score-text");
+    const donut = document.getElementById("donut");
+    const DONUT_SPRITE_URL = "url('./images/donut_sprite.png')";
+
+    // === СИСТЕМА ПЕРЕКЛЮЧЕНИЯ МЕЖДУ УЛУЧШЕНИЯМИ И МАРКЕТОМ ===
+    document.getElementById('open-upgrades-btn').addEventListener('click', function() {
+        const upgradesList = document.getElementById('upgrades-list');
+        const cardLayer = document.getElementById('card-upgrades-layer');
+        const btn = document.getElementById('open-upgrades-btn');
         
-        // === КОНСТАНТЫ И ПЕРЕМЕННЫЕ ===
-        let score = 0;
-        let musicEnabled = true;
-        let soundsEnabled = true;
+        if (upgradesList.style.display !== 'none') {
+            upgradesList.style.display = 'none';
+            cardLayer.style.display = 'block';
+            btn.src = 'images/back_button.png';
+        } else {
+            upgradesList.style.display = 'block';
+            cardLayer.style.display = 'none';
+            btn.src = 'images/upgrade_button.png';
+        }
+    });
+
+    // === ФУНКЦИЯ СБРОСА СОХРАНЕНИЙ ===
+    function clearSave() {
+        score = 0;
+        document.getElementById("score-text").textContent = "0";
+        upgrades.chef.owned = 0;
+        passiveIncome = 0;
         
-        let upgrades = {
-            chef: { 
-                owned: 0,
-                basePrice: 50,
-                production: 4
-            }
-        };
+        localStorage.removeItem("donutTap_score");
+        localStorage.removeItem("donutTap_upgrades");
+        localStorage.removeItem("donutTap_lastSaveTime");
+        localStorage.removeItem("donutTap_music");
+        localStorage.removeItem("donutTap_sounds");
         
-        let passiveIncome = 0;
-        let lastSaveTime = Date.now();
-        
-        const scoreDisplay = document.getElementById("score-text");
-        const donut = document.getElementById("donut");
-        const DONUT_SPRITE_URL = "url('./images/donut_sprite.png')";
+        updateUpgradesDisplay();
+        calculatePassiveIncome();
+        musicEnabled = true;
+        soundsEnabled = true;
+        updateSettingsIcons();
+    }
 
-        // === СИСТЕМА ПЕРЕКЛЮЧЕНИЯ МЕЖДУ УЛУЧШЕНИЯМИ И МАРКЕТОМ ===
-        document.getElementById('open-upgrades-btn').addEventListener('click', function() {
-            const upgradesList = document.getElementById('upgrades-list');
-            const cardLayer = document.getElementById('card-upgrades-layer');
-            const btn = document.getElementById('open-upgrades-btn');
-            
-            if (upgradesList.style.display !== 'none') {
-                // Переключаем на маркет карточек
-                upgradesList.style.display = 'none';
-                cardLayer.style.display = 'block';
-                btn.src = 'images/back_button.png'; // Меняем иконку на "назад"
-            } else {
-                // Возвращаем к улучшениям
-                upgradesList.style.display = 'block';
-                cardLayer.style.display = 'none';
-                btn.src = 'images/upgrade_button.png'; // Возвращаем иконку улучшений
-            }
-        });
-
-        // === ФУНКЦИЯ СБРОСА СОХРАНЕНИЙ ===
-        function clearSave() {
-            // 1. Сбрасываем баланс
-            score = 0;
-            document.getElementById("score-text").textContent = "0";
-        
-            // 2. Сбрасываем улучшения
-            upgrades.chef.owned = 0;
-            passiveIncome = 0;
-        
-            // 3. Чистим локальное хранилище
-            localStorage.removeItem("donutTap_score");
-            localStorage.removeItem("donutTap_upgrades");
-            localStorage.removeItem("donutTap_lastSaveTime");
-            localStorage.removeItem("donutTap_music");
-            localStorage.removeItem("donutTap_sounds");
-        
-            // 4. Обновляем отображение
-            updateUpgradesDisplay();
-            calculatePassiveIncome();
-        
-            // 5. Сбрасываем настройки звука к дефолтным
-            musicEnabled = true;
-            soundsEnabled = true;
-            updateSettingsIcons();
+    function fullReset() {
+        if(confirm("Вы точно хотите сбросить весь прогресс? Это нельзя отменить!")) {
+            clearSave();
+            alert("Прогресс полностью сброшен! Страница перезагрузится.");
+            setTimeout(() => location.reload(), 1000);
         }
+    }
+    
+    function formatNumber(num) {
+        if (num < 1000) return num.toString();
+        const suffixes = ["", "K", "M", "B", "T", "Qa", "Qi"];
+        const tier = Math.floor(Math.log10(num) / 3);
+        if (tier >= suffixes.length) return "∞";
+        const scaled = num / Math.pow(1000, tier);
+        const formatted = scaled % 1 === 0 ? scaled.toFixed(0) : scaled.toFixed(1);
+        return formatted + suffixes[tier];
+    }
 
-        // === ФУНКЦИЯ ПОЛНОГО СБРОСА С ПЕРЕЗАГРУЗКОЙ ===
-        function fullReset() {
-            if(confirm("Вы точно хотите сбросить весь прогресс? Это нельзя отменить!")) {
-                clearSave();
-                // Уведомляем игрока
-                alert("Прогресс полностью сброшен! Страница перезагрузится.");
-                // Перезагружаем страницу
-                setTimeout(() => {
-                    location.reload();
-                }, 1000);
-            }
-        }
-        
-        // === ФУНКЦИИ ФОРМАТИРОВАНИЯ ===
-        function formatNumber(num) {
-            if (num < 1000) return num.toString();
-            const suffixes = ["", "K", "M", "B", "T", "Qa", "Qi"];
-            const tier = Math.floor(Math.log10(num) / 3);
-            if (tier >= suffixes.length) return "∞";
-            const scaled = num / Math.pow(1000, tier);
-            const formatted = scaled % 1 === 0 ? scaled.toFixed(0) : scaled.toFixed(1);
-            return formatted + suffixes[tier];
-        }
+    function calculatePassiveIncome() {
+        passiveIncome = upgrades.chef.owned * upgrades.chef.production;
+        return passiveIncome;
+    }
 
-        // === СИСТЕМА УЛУЧШЕНИЙ ===
-        function calculatePassiveIncome() {
-            passiveIncome = upgrades.chef.owned * upgrades.chef.production;
-            return passiveIncome;
-        }
-
-        function updatePassiveIncome() {
-            if (passiveIncome > 0) {
-                score += passiveIncome;
-                scoreDisplay.textContent = formatNumber(score);
-                saveProgress();
-            }
-        }
-
-        function buyUpgrade(upgradeId) {
-            const upgrade = upgrades[upgradeId];
-            const price = Math.floor(upgrade.basePrice * Math.pow(1.15, upgrade.owned));
-            
-            if (score >= price) {
-                score -= price;
-                upgrade.owned++;
-                
-                scoreDisplay.textContent = formatNumber(score);
-                updateUpgradesDisplay();
-                calculatePassiveIncome();
-                saveProgress();
-                saveUpgrades();
-            }
-        }
-
-        function updateUpgradesDisplay() {
-            const chefUpgrade = document.querySelector('[data-id="chef"]');
-            if (chefUpgrade) {
-                const chef = upgrades.chef;
-                const nextPrice = Math.floor(chef.basePrice * Math.pow(1.15, chef.owned));
-                
-                chefUpgrade.querySelector('.upgrade-status').textContent = chef.owned;
-                chefUpgrade.querySelector('.upgrade-price').textContent = `Цена: ${formatNumber(nextPrice)}`;
-                
-                const canAfford = score >= nextPrice;
-                chefUpgrade.style.opacity = canAfford ? '1' : '0.6';
-            }
-        }
-
-        // === ИНФОРМАЦИЯ ОБ УЛУЧШЕНИЯХ ===
-        function showUpgradeInfo() {
-            const details = document.getElementById('upgrade-details');
-            const chef = upgrades.chef;
-            const totalProduction = chef.owned * chef.production;
-            const nextPrice = Math.floor(chef.basePrice * Math.pow(1.15, chef.owned));
-            
-            details.innerHTML = `
-                <strong>🍩 Повар</strong><br>
-                Производит: ${chef.production} пончиков/сек<br>
-                Куплено: ${chef.owned} поваров<br>
-                Всего: +${totalProduction} пончиков/сек<br>
-                Следующий: ${formatNumber(nextPrice)} пончиков
-            `;
-            
-            details.style.display = details.style.display === 'none' ? 'block' : 'none';
-        }
-
-        // === СИСТЕМА ОФФЛАЙН-ПРОГРЕССА ===
-        function calculateOfflineProgress() {
-            const currentTime = Date.now();
-            const savedTime = localStorage.getItem("donutTap_lastSaveTime");
-            
-            if (savedTime) {
-                const offlineTime = currentTime - parseInt(savedTime);
-                const offlineSeconds = Math.floor(offlineTime / 1000);
-                
-                const maxOfflineSeconds = 86400;
-                const actualOfflineSeconds = Math.min(offlineSeconds, maxOfflineSeconds);
-                
-                if (actualOfflineSeconds > 0 && passiveIncome > 0) {
-                    const offlineDonuts = passiveIncome * actualOfflineSeconds;
-                    if (offlineDonuts > 0) {
-                        score += offlineDonuts;
-                        scoreDisplay.textContent = formatNumber(score);
-                        saveProgress();
-                        console.log(`🕒 Оффлайн-прогресс: +${formatNumber(offlineDonuts)} пончиков за ${formatTime(actualOfflineSeconds)}`);
-                    }
-                }
-            }
-            
-            lastSaveTime = currentTime;
-        }
-
-        function formatTime(seconds) {
-            if (seconds < 60) return `${seconds} сек`;
-            if (seconds < 3600) return `${Math.floor(seconds / 60)} мин`;
-            if (seconds < 86400) return `${Math.floor(seconds / 3600)} час`;
-            return `${Math.floor(seconds / 86400)} дн`;
-        }
-
-        // === СИСТЕМА СОХРАНЕНИЯ ===
-        function loadSave() {
-            // 1. загружаем счёт
-            const savedScore = localStorage.getItem("donutTap_score");
-            if (savedScore) {
-                score = parseInt(savedScore) 
-                scoreDisplay.textContent = formatNumber(score);
-        }
-            // 2. показываем ID
-            displayPlayerID();
-            setupIDCopyButton();
-
-            // 3. загружаем настройки звука
-            const savedMusic = localStorage.getItem ("donutTap_music");
-            const savedSounds = localStoreg.getItem ("donutTap_sonds");
-
-            // 4. если настройки сохранены - загружаем, иначеставим true
-            musicEnabled = savedMusic !== null ? savedMusic === 'true' : true;
-            soundsEnabled = savedSounds !== null ? savedSounds === 'true' : true;
-            updateSettingsIcons();
-
-            // 5. загружаем улучшения 
-            loadUpgrades();
-
-            // 6. рассчитываем оффлайн-прогресс
-            calculateOfflineProgress();
-
-         }
-       
-        function saveProgress() {
-            localStorage.setItem("donutTap_score", score.toString());
-            localStorage.setItem("donutTap_lastSaveTime", Date.now().toString());
-        }
-        
-        function saveSettings() {
-            localStorage.setItem("donutTap_music", musicEnabled.toString());
-            localStorage.setItem("donutTap_sounds", soundsEnabled.toString());
-        }
-        
-        function saveUpgrades() {
-            localStorage.setItem("donutTap_upgrades", JSON.stringify(upgrades));
-        }
-        
-        function loadUpgrades() {
-            const saved = localStorage.getItem("donutTap_upgrades");
-            if (saved) {
-                try {
-                    upgrades = JSON.parse(saved);
-                    calculatePassiveIncome();
-                    updateUpgradesDisplay();
-                } catch (e) {
-                    console.log("Ошибка загрузки улучшений, сброс...");
-                    clearSave();
-                }
-            }
-        }
-        
-        function updateSettingsIcons() {
-            const musicIcon = document.getElementById("music-icon");
-            const soundIcon = document.getElementById("sound-icon");
-            musicIcon.src = musicEnabled ? 'images/music_on.png' : 'images/music_off.png';
-            soundIcon.src = soundsEnabled ? 'images/sound_on.png' : 'images/sound_off.png';
-        }
-
-        // === СИСТЕМА ЧАСТИЦ ===
-        function createParticle(x, y) {
-            const container = document.getElementById('particles-container');
-            const particle = document.createElement('div');
-            
-            particle.className = 'particle';
-            particle.style.backgroundImage = DONUT_SPRITE_URL;
-            particle.style.left = (x - 16) + 'px';
-            particle.style.top = (y - 16) + 'px';
-            
-            const angle = Math.random() * Math.PI * 2;
-            const distance = 50 + Math.random() * 80;
-            const targetX = x + Math.cos(angle) * distance;
-            const targetY = y + Math.sin(angle) * distance;
-            
-            container.appendChild(particle);
-            
-            setTimeout(() => {
-                particle.style.transform = `translate(${targetX - x}px, ${targetY - y}px)`;
-                particle.style.opacity = '0';
-            }, 10);
-            
-            setTimeout(() => {
-                if (particle.parentNode) {
-                    particle.parentNode.removeChild(particle);
-                }
-            }, 500);
-        }
-
-        // === СИСТЕМА ЗВУКОВ ===
-        const tapSounds = [
-            'sounds/tap1.mp3',
-            'sounds/tap2.mp3',
-            'sounds/tap3.mp3',
-            'sounds/tap4.mp3',
-            'sounds/tap5.mp3',
-            'sounds/tap6.mp3',
-            'sounds/tap7.mp3'
-        ];
-
-        function playTapSound() {
-            if (!soundsEnabled) return;
-            
-            const randomSound = tapSounds[Math.floor(Math.random() * tapSounds.length)];
-            const audio = new Audio(randomSound);
-            audio.volume = 0.3;
-            audio.play().catch(e => {
-                console.log("Audio play failed:", e);
-                soundsEnabled = false;
-                saveSettings();
-                updateSettingsIcons();
-            });
-        }
-
-        // === ОСНОВНАЯ ЛОГИКА ===
-        function tap(event) {
-            score++;
+    function updatePassiveIncome() {
+        if (passiveIncome > 0) {
+            score += passiveIncome;
             scoreDisplay.textContent = formatNumber(score);
             saveProgress();
-            
-            donut.classList.remove("jump-animation");
-            void donut.offsetWidth;
-            donut.classList.add("jump-animation");
-            
-            createParticle(event.clientX, event.clientY);
-            playTapSound();
-       }
-
-       // === СИСТЕМА ID ИГРОКА ===
-
-       // Генерация ID
-       function generatePlayerID() {
-    try {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let result = 'DT_';
-        
-        // Добавляем timestamp для уникальности
-        const timestamp = Date.now().toString().slice(-4);
-        
-        for (let i = 0; i < 4; i++) { // Уменьшили до 4 символов + timestamp
-            result += chars.charAt(Math.floor(Math.random() * chars.length));
         }
-        
-        result += timestamp;
-        console.log('✨ Сгенерирован ID:', result);
-        return result;
-    } catch (error) {
-        // Резервный вариант
-        return 'DT_' + Math.random().toString(36).substr(2, 8).toUpperCase();
     }
-}
 
-       // Загрузка или создание ID
-       function getPlayerID() {
-    try {
-        // Проверяем, есть ли уже ID в localStorage
-        let playerID = localStorage.getItem('donutTap_playerID');
+    function buyUpgrade(upgradeId) {
+        const upgrade = upgrades[upgradeId];
+        const price = Math.floor(upgrade.basePrice * Math.pow(1.15, upgrade.owned));
         
-        // Если ID нет или он некорректный - создаем новый
-        if (!playerID || playerID.length < 5) {
-            console.log('🆔 Создаем новый ID игрока...');
-            playerID = generatePlayerID();
-            localStorage.setItem('donutTap_playerID', playerID);
-        }
-        
-        // Дополнительная проверка формата
-        if (!playerID.startsWith('DT_')) {
-            console.log('⚠️ Исправляем старый формат ID...');
-            playerID = generatePlayerID();
-            localStorage.setItem('donutTap_playerID', playerID);
-        }
-        
-        return playerID;
-    } catch (error) {
-        console.log('❌ Ошибка при получении ID:', error);
-        // Возвращаем дефолтный ID на случай ошибки
-        return 'DT_GUEST001';
-    }
-}
-
-       // Отображение ID в настройках
-       function displayPlayerID() {
-    try {
-        const playerID = getPlayerID();
-        const displayElement = document.getElementById('player-id-display');
-        
-        if (displayElement) {
-            displayElement.textContent = playerID;
-            console.log('✅ ID игрока отображен:', playerID);
-        } else {
-            console.log('❌ Элемент для отображения ID не найден');
-            // Создаем элемент, если его нет (на всякий случай)
-            setTimeout(() => displayPlayerID(), 100);
-        }
-    } catch (error) {
-        console.log('❌ Ошибка при отображении ID:', error);
-        // Пробуем еще раз через секунду
-        setTimeout(() => displayPlayerID(), 1000);
-    }
-}
-
-       // Копирование ID в буфер обмена
-       function setupIDCopyButton() {
-           const copyButton = document.getElementById('copy-id-btn');
-           if (copyButton) {
-               copyButton.addEventListener('click', function() {
-                   const playerID = getPlayerID();
-                   navigator.clipboard.writeText(playerID)
-                       .then(() => {
-                           copyButton.textContent = 'Скопировано!';
-                           setTimeout(() => {
-                               copyButton.textContent = 'Копировать';
-                           }, 2000);
-                       })
-                       .catch(err => {
-                           console.error('Ошибка копирования:', err);
-                       });
-               });
-           }
-       }
-        
-        // === ОБРАБОТЧИКИ СОБЫТИЙ ===
-        
-        // Настройки
-        document.getElementById('settings-btn').addEventListener('click', () => {
-            document.getElementById('settings-modal').style.display = 'block';
-        });
-
-        document.getElementById('close-btn').addEventListener('click', () => {
-            document.getElementById('settings-modal').style.display = 'none';
-        });
-
-        document.getElementById('music-setting').addEventListener('click', () => {
-            musicEnabled = !musicEnabled;
-            saveSettings();
-            updateSettingsIcons();
-        });
-
-        document.getElementById('sound-setting').addEventListener('click', () => {
-            soundsEnabled = !soundsEnabled;
-            saveSettings();
-            updateSettingsIcons();
-        });
-        // Кнопка reset
-        document.getElementById('reset-btn-settings').addEventListener('click', fullReset);
-            
-               
-        // === СИСТЕМА УПРАВЛЕНИЯ СЛОЯМИ ===
-
-        // Показать слой улучшений
-        document.getElementById('upgrades-btn').addEventListener('click', function() {
-            document.getElementById('upgrades-layer').style.display = 'block';
+        if (score >= price) {
+            score -= price;
+            upgrade.owned++;
+            scoreDisplay.textContent = formatNumber(score);
             updateUpgradesDisplay();
-        });
-
-        
-        
-        // Закрыть слой улучшений
-        document.getElementById('close-upgrades').addEventListener('click', function() {
-            document.getElementById('upgrades-layer').style.display = 'none';
-            document.getElementById('upgrade-details').style.display = 'none';
-        });
-
-        // Показать главный слой (основной экран)
-        function showMainLayer() {
-            document.getElementById('upgrades-layer').style.display = 'none';
-            document.getElementById('settings-modal').style.display = 'none';
-        }
-
-        document.querySelector('[data-id="chef"]').addEventListener('click', function() {
-            buyUpgrade('chef');
-        });
-
-        // INFO-КНОПКА в меню улучшений
-        document.getElementById('upgrade-info-btn').addEventListener('click', showUpgradeInfo);
-
-        // СОХРАНЕНИЕ ПРИ ЗАКРЫТИИ СТРАНИЦЫ
-        window.addEventListener('beforeunload', function() {
+            calculatePassiveIncome();
             saveProgress();
-        });
+            saveUpgrades();
+        }
+    }
 
-        // === ЗАПУСК ИГРЫ ===
-        donut.addEventListener("click", tap);
-        loadSave();
-        setInterval(updatePassiveIncome, 1000);
-    </script>
-</body>
+    function updateUpgradesDisplay() {
+        const chefUpgrade = document.querySelector('[data-id="chef"]');
+        if (chefUpgrade) {
+            const chef = upgrades.chef;
+            const nextPrice = Math.floor(chef.basePrice * Math.pow(1.15, chef.owned));
+            
+            chefUpgrade.querySelector('.upgrade-status').textContent = chef.owned;
+            chefUpgrade.querySelector('.upgrade-price').textContent = `Цена: ${formatNumber(nextPrice)}`;
+            
+            const canAfford = score >= nextPrice;
+            chefUpgrade.style.opacity = canAfford ? '1' : '0.6';
+        }
+    }
+
+    function showUpgradeInfo() {
+        const details = document.getElementById('upgrade-details');
+        const chef = upgrades.chef;
+        const totalProduction = chef.owned * chef.production;
+        const nextPrice = Math.floor(chef.basePrice * Math.pow(1.15, chef.owned));
+        
+        details.innerHTML = `
+            <strong>🍩 Повар</strong><br>
+            Производит: ${chef.production} пончиков/сек<br>
+            Куплено: ${chef.owned} поваров<br>
+            Всего: +${totalProduction} пончиков/сек<br>
+            Следующий: ${formatNumber(nextPrice)} пончиков
+        `;
+        
+        details.style.display = details.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function calculateOfflineProgress() {
+        const currentTime = Date.now();
+        const savedTime = localStorage.getItem("donutTap_lastSaveTime");
+        
+        if (savedTime) {
+            const offlineTime = currentTime - parseInt(savedTime);
+            const offlineSeconds = Math.floor(offlineTime / 1000);
+            const maxOfflineSeconds = 86400;
+            const actualOfflineSeconds = Math.min(offlineSeconds, maxOfflineSeconds);
+            
+            if (actualOfflineSeconds > 0 && passiveIncome > 0) {
+                const offlineDonuts = passiveIncome * actualOfflineSeconds;
+                if (offlineDonuts > 0) {
+                    score += offlineDonuts;
+                    scoreDisplay.textContent = formatNumber(score);
+                    saveProgress();
+                    console.log(`🕒 Оффлайн-прогресс: +${formatNumber(offlineDonuts)} пончиков за ${formatTime(actualOfflineSeconds)}`);
+                }
+            }
+        }
+        lastSaveTime = currentTime;
+    }
+
+    function formatTime(seconds) {
+        if (seconds < 60) return `${seconds} сек`;
+        if (seconds < 3600) return `${Math.floor(seconds / 60)} мин`;
+        if (seconds < 86400) return `${Math.floor(seconds / 3600)} час`;
+        return `${Math.floor(seconds / 86400)} дн`;
+    }
+
+    function loadSave() {
+        console.log('🔄 Загрузка сохранения...');
+        
+        displayPlayerID();
+        setupIDCopyButton();
+        
+        const savedScore = localStorage.getItem("donutTap_score");
+        if (savedScore) {
+            score = parseInt(savedScore);
+            scoreDisplay.textContent = formatNumber(score);
+        }
+        
+        const savedMusic = localStorage.getItem("donutTap_music");
+        const savedSounds = localStorage.getItem("donutTap_sounds");
+        
+        musicEnabled = savedMusic !== null ? savedMusic === 'true' : true;
+        soundsEnabled = savedSounds !== null ? savedSounds === 'true' : true;
+        
+        updateSettingsIcons();
+        loadUpgrades();
+        calculateOfflineProgress();
+    }
+       
+    function saveProgress() {
+        localStorage.setItem("donutTap_score", score.toString());
+        localStorage.setItem("donutTap_lastSaveTime", Date.now().toString());
+    }
+    
+    function saveSettings() {
+        localStorage.setItem("donutTap_music", musicEnabled.toString());
+        localStorage.setItem("donutTap_sounds", soundsEnabled.toString());
+    }
+    
+    function saveUpgrades() {
+        localStorage.setItem("donutTap_upgrades", JSON.stringify(upgrades));
+    }
+    
+    function loadUpgrades() {
+        const saved = localStorage.getItem("donutTap_upgrades");
+        if (saved) {
+            try {
+                upgrades = JSON.parse(saved);
+                calculatePassiveIncome();
+                updateUpgradesDisplay();
+            } catch (e) {
+                console.log("Ошибка загрузки улучшений, сброс...");
+                clearSave();
+            }
+        }
+    }
+    
+    function updateSettingsIcons() {
+        const musicIcon = document.getElementById("music-icon");
+        const soundIcon = document.getElementById("sound-icon");
+        musicIcon.src = musicEnabled ? 'images/music_on.png' : 'images/music_off.png';
+        soundIcon.src = soundsEnabled ? 'images/sound_on.png' : 'images/sound_off.png';
+    }
+
+    function createParticle(x, y) {
+        const container = document.getElementById('particles-container');
+        const particle = document.createElement('div');
+        
+        particle.className = 'particle';
+        particle.style.backgroundImage = DONUT_SPRITE_URL;
+        particle.style.left = (x - 16) + 'px';
+        particle.style.top = (y - 16) + 'px';
+        
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 50 + Math.random() * 80;
+        const targetX = x + Math.cos(angle) * distance;
+        const targetY = y + Math.sin(angle) * distance;
+        
+        container.appendChild(particle);
+        
+        setTimeout(() => {
+            particle.style.transform = `translate(${targetX - x}px, ${targetY - y}px)`;
+            particle.style.opacity = '0';
+        }, 10);
+        
+        setTimeout(() => {
+            if (particle.parentNode) {
+                particle.parentNode.removeChild(particle);
+            }
+        }, 500);
+    }
+
+    const tapSounds = [
+        'sounds/tap1.mp3',
+        'sounds/tap2.mp3',
+        'sounds/tap3.mp3',
+        'sounds/tap4.mp3',
+        'sounds/tap5.mp3',
+        'sounds/tap6.mp3',
+        'sounds/tap7.mp3'
+    ];
+
+    function playTapSound() {
+        if (!soundsEnabled) return;
+        
+        const randomSound = tapSounds[Math.floor(Math.random() * tapSounds.length)];
+        const audio = new Audio(randomSound);
+        audio.volume = 0.3;
+        audio.play().catch(e => {
+            console.log("Audio play failed:", e);
+            soundsEnabled = false;
+            saveSettings();
+            updateSettingsIcons();
+        });
+    }
+
+    function tap(event) {
+        score++;
+        scoreDisplay.textContent = formatNumber(score);
+        saveProgress();
+        
+        donut.classList.remove("jump-animation");
+        void donut.offsetWidth;
+        donut.classList.add("jump-animation");
+        
+        createParticle(event.clientX, event.clientY);
+        playTapSound();
+    }
+
+    function generatePlayerID() {
+        try {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = 'DT_';
+            
+            const timestamp = Date.now().toString().slice(-4);
+            
+            for (let i = 0; i < 4; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            
+            result += timestamp;
+            console.log('✨ Сгенерирован ID:', result);
+            return result;
+        } catch (error) {
+            return 'DT_' + Math.random().toString(36).substr(2, 8).toUpperCase();
+        }
+    }
+
+    function getPlayerID() {
+        try {
+            let playerID = localStorage.getItem('donutTap_playerID');
+            
+            if (!playerID || playerID.length < 5) {
+                console.log('🆔 Создаем новый ID игрока...');
+                playerID = generatePlayerID();
+                localStorage.setItem('donutTap_playerID', playerID);
+            }
+            
+            if (!playerID.startsWith('DT_')) {
+                console.log('⚠️ Исправляем старый формат ID...');
+                playerID = generatePlayerID();
+                localStorage.setItem('donutTap_playerID', playerID);
+            }
+            
+            return playerID;
+        } catch (error) {
+            console.log('❌ Ошибка при получении ID:', error);
+            return 'DT_GUEST001';
+        }
+    }
+
+    function displayPlayerID() {
+        try {
+            console.log('🔍 Начинаем отображение ID игрока...');
+            const playerID = getPlayerID();
+            const displayElement = document.getElementById('player-id-display');
+            
+            if (displayElement) {
+                displayElement.textContent = playerID;
+                console.log('✅ ID отображен:', playerID);
+            } else {
+                console.log('❌ Элемент #player-id-display не найден!');
+                setTimeout(() => {
+                    const retryElement = document.getElementById('player-id-display');
+                    if (retryElement) {
+                        retryElement.textContent = playerID;
+                    }
+                }, 1000);
+            }
+        } catch (error) {
+            console.log('💥 Ошибка при отображении ID:', error);
+        }
+    }
+
+    function setupIDCopyButton() {
+        const copyButton = document.getElementById('copy-id-btn');
+        if (!copyButton) {
+            console.log('⚠️ Кнопка копирования не найдена');
+            return;
+        }
+        
+        copyButton.addEventListener('click', function() {
+            const playerID = getPlayerID();
+            
+            navigator.clipboard.writeText(playerID).then(() => {
+                console.log('📋 ID скопирован:', playerID);
+                
+                const originalText = copyButton.textContent;
+                copyButton.textContent = 'Скопировано! ✓';
+                copyButton.style.background = '#4CAF50';
+                
+                setTimeout(() => {
+                    copyButton.textContent = originalText;
+                    copyButton.style.background = '';
+                }, 2000);
+                
+            }).catch(err => {
+                console.log('❌ Ошибка копирования:', err);
+                const textArea = document.createElement('textarea');
+                textArea.value = playerID;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                copyButton.textContent = 'Скопировано!';
+                setTimeout(() => copyButton.textContent = 'Копировать', 2000);
+            });
+        });
+    }
+    
+    // === ОБРАБОТЧИКИ СОБЫТИЙ ===
+    document.getElementById('settings-btn').addEventListener('click', () => {
+        document.getElementById('settings-modal').style.display = 'block';
+    });
+
+    document.getElementById('close-btn').addEventListener('click', () => {
+        document.getElementById('settings-modal').style.display = 'none';
+    });
+
+    document.getElementById('music-setting').addEventListener('click', () => {
+        musicEnabled = !musicEnabled;
+        saveSettings();
+        updateSettingsIcons();
+    });
+
+    document.getElementById('sound-setting').addEventListener('click', () => {
+        soundsEnabled = !soundsEnabled;
+        saveSettings();
+        updateSettingsIcons();
+    });
+    
+    document.getElementById('reset-btn-settings').addEventListener('click', fullReset);
+    
+    document.getElementById('upgrades-btn').addEventListener('click', function() {
+        document.getElementById('upgrades-layer').style.display = 'block';
+        updateUpgradesDisplay();
+    });
+    
+    document.getElementById('close-upgrades').addEventListener('click', function() {
+        document.getElementById('upgrades-layer').style.display = 'none';
+        document.getElementById('upgrade-details').style.display = 'none';
+    });
+
+    document.querySelector('[data-id="chef"]').addEventListener('click', function() {
+        buyUpgrade('chef');
+    });
+
+    document.getElementById('upgrade-info-btn').addEventListener('click', showUpgradeInfo);
+
+    window.addEventListener('beforeunload', function() {
+        saveProgress();
+    });
+
+    // === ЗАПУСК ИГРЫ ===
+    donut.addEventListener("click", tap);
+    loadSave();
+    setInterval(updatePassiveIncome, 1000);
+</script>
+    </body>
             </html>
