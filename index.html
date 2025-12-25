@@ -128,6 +128,37 @@
             position: relative;
             z-index: 2001;
             margin-top: 20px;
+        /* Добавляем верхний отступ для первой карточки */
+            padding-top: 20px;
+        }
+
+        #upgrades-list {
+            width: 100%;
+            margin-top: 0; /* Убираем лишний отступ */
+        }
+
+        /* Стандартные стили для всех карточек */
+        .upgrade-item {
+            display: flex;
+            align-items: center;
+            padding: 12px; /* Немного увеличиваем отступы */
+            margin: 10px auto; /* Центрируем и добавляем отступы */
+            background: rgba(255,255,255,0.15);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            width: 95%;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+            position: relative;
+            z-index: 2002;
+        }
+
+        /* Первая карточка (повар) может иметь особый стиль */
+        .upgrade-item:first-of-type {
+            border-color: gold;
+            background: rgba(255, 215, 0, 0.1);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
         }
         
         /* ПОЛНОЭКРАННЫЙ БЕКГРАУНД ДЛЯ УЛУЧШЕНИЙ */
@@ -301,9 +332,7 @@
             margin-left: 10px;
             font-weight: bold;
         }
-        /* СДВИГАЕМ ВСЮ КАРТОЧКУ ПОВАРА В ПРАВО */
-        .upgrade-item[data-id="chef"] {
-            transform: translateX(8px) translateY(-200px) scale(0.95) !important; 
+         
         }
         /* кнопка улучшений в маркете*/
         .upgrades-action-btn {
@@ -438,41 +467,41 @@
         }
 
         /* Стили для ID игрока */
-#player-id-setting {
-    margin-top: 10px;
-    padding: 15px 0; /* Только вертикальные отступы */
-    text-align: center;
-}
+        #player-id-setting {
+          margin-top: 10px;
+          padding: 15px 0; /* Только вертикальные отступы */
+          text-align: center;
+        }
 
-.clickable-id {
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
-    font-size: 18px;
-    color: #FFD700; /* Золотой цвет */
-    padding: 8px 16px;
-    border-radius: 6px;
-    display: inline-block;
-    min-width: 160px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    user-select: none;
-    background: none; /* Без фона */
-    border: none; /* Без обводки */
-    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); /* Легкое свечение */
-}
+        .clickable-id {
+          font-family: 'Courier New', monospace;
+          font-weight: bold;
+          font-size: 18px;
+          color: #FFD700; /* Золотой цвет */
+          padding: 8px 16px;
+          border-radius: 6px;
+          display: inline-block;
+          min-width: 160px;
+          text-align: center;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          user-select: none;
+          background: none; /* Без фона */
+          border: none; /* Без обводки */
+          text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); /* Легкое свечение */
+        }
 
-/* Эффект при наведении - только свечение */
-.clickable-id:hover {
-    transform: translateY(-1px);
-    text-shadow: 0 0 15px rgba(255, 215, 0, 0.8); /* Усиливаем свечение */
-}
+        /* Эффект при наведении - только свечение */
+        .clickable-id:hover {
+          transform: translateY(-1px);
+          text-shadow: 0 0 15px rgba(255, 215, 0, 0.8); /* Усиливаем свечение */
+        }
 
-.clickable-id:active {
-    transform: translateY(0);
-}
+        .clickable-id:active {
+          transform: translateY(0);
+        }
 
-/* Анимация при копировании - только изменение цвета */
+        /* Анимация при копировании - только изменение цвета */
 @keyframes copyFlash {
     0% { 
         color: #FFD700;
@@ -1006,9 +1035,15 @@ function copyIDOnClick() {
     document.getElementById('reset-btn-settings').addEventListener('click', fullReset);
     
     document.getElementById('upgrades-btn').addEventListener('click', function() {
-        document.getElementById('upgrades-layer').style.display = 'block';
-        updateUpgradesDisplay();
-    });
+    document.getElementById('upgrades-layer').style.display = 'block';
+    updateUpgradesDisplay();
+    
+    // Прокручиваем к началу списка
+    const upgradesList = document.getElementById('upgrades-list');
+    if (upgradesList) {
+        upgradesList.scrollTop = 0;
+    }
+});
     
     document.getElementById('close-upgrades').addEventListener('click', function() {
         document.getElementById('upgrades-layer').style.display = 'none';
